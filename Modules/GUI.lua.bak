@@ -1,0 +1,583 @@
+local addonName, addon = ...
+local GUI = addon:NewModule("GUI", "AceEvent-3.0", "AceHook-3.0", "AceConsole-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+local AceGUI = LibStub("AceGUI-3.0")
+local private = {}
+------------------------------------------------------------------------------
+
+-- printing debug info
+function GUI:DebugPrintf(...)
+	if addon.isDebug then
+		GUI:Printf(...)
+	end
+	-- addon.DebugLog(format(...))
+end
+
+-- do things on logout
+function GUI:OnLogout()
+end
+
+function GUI:CreateNativeFrame( frmWidth, frmHeight )
+	tObj = CreateFrame("Frame", "TritonUIFrame", UIParent)
+    tObj:SetPoint("CENTER", UIParent, "CENTER")
+    tObj:SetHeight(frmHeight)
+    tObj:SetWidth(frmWidth)
+    tObj:SetBackdrop({bgFile="Interface\\Tooltips\\UI-Tooltip-Background", edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", tile = false, tileSize = 1, edgeSize = 10, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
+    tObj:SetBackdropColor(0, 0, 0, 0.75)
+    tObj:EnableMouse(true)
+    tObj:SetMovable(true)
+    tObj:SetResizable(true)
+    tObj:SetScript("OnDragStart", function(self) 
+        self.isMoving = true
+        self:StartMoving() 
+    end)
+    tObj:SetScript("OnDragStop", function(self) 
+        self.isMoving = false
+        self:StopMovingOrSizing() 
+        self.x = self:GetLeft() 
+        self.y = (self:GetTop() - self:GetHeight()) 
+        self:ClearAllPoints()
+        self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.x, self.y)
+    end)
+    tObj:SetScript("OnUpdate", function(self) 
+        if self.isMoving == true then
+            self.x = self:GetLeft() 
+            self.y = (self:GetTop() - self:GetHeight()) 
+            self:ClearAllPoints()
+            self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.x, self.y)
+        end
+    end)
+    tObj:SetClampedToScreen(true)
+    tObj:RegisterForDrag("LeftButton")
+    tObj:SetScale(1)
+    tObj.x = tObj:GetLeft() 
+    tObj.y = (tObj:GetTop() - tObj:GetHeight()) 
+    -- tObj:Show()
+ 
+    local resizeButton = CreateFrame("Button", "resButton", tObj)
+    resizeButton:SetSize(16, 16)
+    resizeButton:SetPoint("BOTTOMRIGHT")
+    resizeButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    resizeButton:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    resizeButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+    resizeButton:SetScript("OnMouseDown", function(self, button)
+        if button == "LeftButton" then
+            self.isSizing = true
+            self:GetParent():StartSizing("BOTTOMRIGHT")
+            self:GetParent():SetUserPlaced(true)
+        elseif button == "RightButton" then
+            self.isScaling = true
+        end
+    end)
+    resizeButton:SetScript("OnMouseUp", function(self, button)
+        if button == "LeftButton" then
+            self.isSizing = false
+            self:GetParent():StopMovingOrSizing()
+        elseif button == "RightButton" then
+            self.isScaling = false
+        end
+    end)
+    resizeButton:SetScript("OnUpdate", function(self, button)
+        if self.isScaling == true then
+            local cx, cy = GetCursorPosition()
+            cx = cx / self:GetEffectiveScale() - self:GetParent():GetLeft() 
+            cy = self:GetParent():GetHeight() - (cy / self:GetEffectiveScale() - self:GetParent():GetBottom() )
+ 
+            local tNewScale = cx / self:GetParent():GetWidth()
+            local tx, ty = self:GetParent().x / tNewScale, self:GetParent().y / tNewScale
+            
+            self:GetParent():ClearAllPoints()
+            self:GetParent():SetScale(self:GetParent():GetScale() * tNewScale)
+            self:GetParent():SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", tx, ty)
+            self:GetParent().x, self:GetParent().y = tx, ty
+        end
+    end)
+
+	local closeButton = CreateFrame("BUTTON", "closeButton", tObj, "UIPanelCloseButton")
+	closeButton:SetSize(24, 24)
+    closeButton:SetPoint("TOPRIGHT")
+    --closeButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    --closeButton:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    --closeButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+	closeButton:SetScript("OnClick", function()
+		tObj:Hide()
+	end)
+	tObj.closeButton = closeButton
+
+    return tObj
+end
+
+function GUI:Load()
+	-- Create frame container
+	local frame = GUI:CreateNativeFrame( 480, 320 )
+
+	GUI:TestMsg( frame )
+
+	frame:Show()
+
+	GUI.display = frame
+	GUI.display:Show()
+
+	return GUI.display
+end
+
+function GUI:TestMsg( frame)
+	local msgs = {
+		"First line",
+	    "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r",
+	    "|cff9d9d9d|Hitem:7073:846:0:0:0:0:924:0|h[Broken Fang of the Gorilla]|h|r",
+	    "\124cff9d9d9d\124Hitem:7073:846:0:0:0:0:0:0\124h[Broken Fang]\124h\124r",
+	    "\124cffff8000\124Hitem:19019:5335:0:0:0:0:0:0\124h[雷霆之怒]\124h\124r",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+	}
+
+	-- ScrollingMessageFrame
+	local messageFrame = CreateFrame("ScrollingMessageFrame", nil, frame)
+	messageFrame:SetPoint("TOPLEFT", 10, -10)
+	messageFrame:SetSize(480-30, 320-20)
+	messageFrame:SetFontObject(GameFontNormal)
+	messageFrame:SetTextColor(1, 1, 1, 1) -- default color
+	messageFrame:SetJustifyH("LEFT")
+	messageFrame:SetHyperlinksEnabled(true)
+	messageFrame:SetFading(false)
+	messageFrame:SetMaxLines(300)
+	frame.messageFrame = messageFrame
+
+	for i, msg in ipairs(msgs) do
+		messageFrame:AddMessage(msg)
+	end
+
+	local scrollBar = CreateFrame("Slider", nil, frame, "UIPanelScrollBarTemplate")
+	scrollBar:SetPoint("TOPRIGHT", 0, -40)
+	scrollBar:SetSize(30, 320 - 60)
+	scrollBar:SetMinMaxValues(0, 9)
+	scrollBar:SetValueStep(1)
+	scrollBar.scrollStep = 1
+	frame.scrollBar = scrollBar
+
+	--[[
+	for i, msg in ipairs(msgs) do
+		local linecontainer = CreateFrame("Frame", "MsgFrame", frame)
+		--linecontainer:ClearAllPoints()
+		--linecontainer:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+		--linecontainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
+	    linecontainer:SetPoint("CENTER", UIParent, "CENTER")
+	    linecontainer:SetHeight(30)
+		linecontainer:SetWidth(300)
+
+		local msgHeader = CreateFrame("Button", "msgButton", linecontainer)
+		msgHeader:ClearAllPoints()
+		msgHeader:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+		msgHeader:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
+		msgHeader:SetText(L["M"])
+	    msgHeader:SetHeight(30)
+		msgHeader:SetWidth(50)
+		--msgHeader:SetWidth(100)
+		msgHeader:SetPoint("LEFT")
+
+		local msgLine = CreateFrame("Button", "msgLabel", linecontainer)
+		msgLine:ClearAllPoints()
+		msgLine:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+		msgLine:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
+		msgLine:SetText(msg)
+	    msgLine:SetHeight(30)
+		msgLine:SetWidth(200)
+		msgLine:SetPoint("RIGHT")
+
+		addon:Printf("test " .. msg)
+	end
+	]]
+
+end
+
+function GUI:Load1()
+
+	local msgs = {
+	    "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r",
+	    "|cff9d9d9d|Hitem:7073:846:0:0:0:0:924:0|h[Broken Fang of the Gorilla]|h|r",
+	    "\124cff9d9d9d\124Hitem:7073:846:0:0:0:0:0:0\124h[Broken Fang]\124h\124r",
+	    "\124cffff8000\124Hitem:19019:5335:0:0:0:0:0:0\124h[雷霆之怒]\124h\124r",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+	}
+
+	local frame = CreateFrame("Frame", "TritonUIFrame", UIParent)
+	frame:SetFrameStrata("BACKGROUND")
+	frame:SetWidth(600)
+	frame:SetHeight(320)
+	-- frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
+	-- frame:SetLayout("Fill")
+	--local t = frame:CreateTexture(nil,"BACKGROUND")
+	--t:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Factions.blp")
+	--t:SetAllPoints(frame)
+	--frame.texture = t
+	frame:SetPoint("CENTER",0,0)
+	frame:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", 
+                                            edgeFile = "Interface/Tooltips/UI-Tooltip-Border", 
+                                            tile = true, tileSize = 16, edgeSize = 16, 
+                                            insets = { left = 4, right = 4, top = 4, bottom = 4 }});
+	frame:SetBackdropColor(0.7, 0.7, 0.7, 0.6);
+	frame:SetMovable(true)
+	frame:EnableMouse(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", frame.StartMoving)
+	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+
+
+	local resizeButton = CreateFrame("Button", nil, frame)
+	resizeButton:SetSize(16, 16)
+	resizeButton:SetPoint("BOTTOMRIGHT")
+	resizeButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+	resizeButton:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+	resizeButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+	 
+	resizeButton:SetScript("OnMouseDown", 
+		function(self, button)
+	    	frame:StartSizing("BOTTOMRIGHT")
+	    	frame:SetUserPlaced(true)
+		end)
+	 
+	resizeButton:SetScript("OnMouseUp", 
+		function(self, button)
+	    	frame:StopMovingOrSizing()
+		end)
+
+	local button = CreateFrame("Button", nil, frame)
+	button:SetPoint("CENTER", frame, "CENTER", 0, 0)
+	button:SetWidth(200)
+	button:SetHeight(50)
+	
+	button:SetText("test")
+	button:SetNormalFontObject("GameFontNormal")	
+
+	frame:Show()
+
+	GUI.display = frame
+	GUI.display:Show()
+
+	return GUI.display
+end
+
+function GUI:Load_Ace_Simple()
+
+	local msgs = {
+	    "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r",
+	    "|cff9d9d9d|Hitem:7073:846:0:0:0:0:924:0|h[Broken Fang of the Gorilla]|h|r",
+	    "\124cff9d9d9d\124Hitem:7073:846:0:0:0:0:0:0\124h[Broken Fang]\124h\124r",
+	    "\124cffff8000\124Hitem:19019:5335:0:0:0:0:0:0\124h[雷霆之怒]\124h\124r",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+	}
+
+	local frame = GUI:CreateNativeFrame(480, 320)
+
+	--local frame = AceGUI:Create("Frame")
+	--frame:SetCallback("OnClose",function(widget) AceGUI:Release(widget) end)
+	--frame:SetTitle("test")
+	--frame:SetLayout("Fill")
+
+	local scrollcontainer = AceGUI:Create("SimpleGroup", nil, frame) -- "InlineGroup" is also good
+	--local frame = scrollcontainer
+	scrollcontainer:SetFullWidth(true)
+	scrollcontainer:SetFullHeight(true) -- probably?
+	scrollcontainer:SetLayout("Fill") -- important!
+	--frame:AddChild(scrollcontainer)
+
+	local scroll = AceGUI:Create("ScrollFrame")
+	scroll:SetLayout("Flow") -- probably?
+	scroll:SetFullWidth(true)
+	scrollcontainer:AddChild(scroll)
+
+	for i, msg in ipairs(msgs) do
+		local linecontainer = AceGUI:Create("SimpleGroup")
+		linecontainer:SetFullWidth(true)
+		linecontainer:SetLayout("Flow")
+
+		local msgHeader = AceGUI:Create("Button")
+		msgHeader:SetText(L["M"])
+		--msgHeader:SetWidth(100)
+		--local msgHeader = AceGUI.Create("Icon")
+		--msgHeader.SetImage("INTERFACE\\ICONS\\INV_MISC_QUESTIONMARK")
+		--msgHeader.SetImageSize(16,16)
+		msgHeader:SetRelativeWidth(0.1)
+		msgHeader:SetPoint("LEFT")
+		linecontainer:AddChild(msgHeader)
+
+		local msgLine = AceGUI:Create("InteractiveLabel")
+		msgLine:SetText(msg)
+		msgLine:SetRelativeWidth(0.9)
+		msgLine:SetPoint("RIGHT")
+		msgLine:SetCallback("OnEnter", ShowLabelTooltip)
+
+		linecontainer:AddChild(msgLine)
+
+		scroll:AddChild(linecontainer)
+
+		addon:Printf("test " .. msg)
+	end
+
+	--[[
+	scrollcontainer:ClearAllPoints()
+	scrollcontainer:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
+	scrollcontainer.SetWidth(480)
+	scrollcontainer.SetHeight(320)
+	scroll:ClearAllPoints()
+	scroll:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0)
+	scroll.SetWidth(480)
+	scroll.SetHeight(320)
+	]]
+
+	scrollcontainer.frame:SetParent(frame)
+	scrollcontainer.frame:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+
+	GUI.display = scrollcontainer.frame
+	GUI.display:Show()
+
+	return GUI.display
+end
+
+function GUI:Load_Ace()
+
+	local msgs = {
+	    "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r",
+	    "|cff9d9d9d|Hitem:7073:846:0:0:0:0:924:0|h[Broken Fang of the Gorilla]|h|r",
+	    "\124cff9d9d9d\124Hitem:7073:846:0:0:0:0:0:0\124h[Broken Fang]\124h\124r",
+	    "\124cffff8000\124Hitem:19019:5335:0:0:0:0:0:0\124h[雷霆之怒]\124h\124r",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+	}
+
+	local frame = AceGUI:Create("Frame")
+	frame:SetTitle(addonName)
+	--frame:SetStatusText("Total 1 msg")
+	frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
+	frame:SetLayout("Fill")
+
+	local scrollcontainer = AceGUI:Create("SimpleGroup") -- "InlineGroup" is also good
+	scrollcontainer:SetFullWidth(true)
+	scrollcontainer:SetFullHeight(true) -- probably?
+	scrollcontainer:SetLayout("Fill") -- important!
+
+	frame:AddChild(scrollcontainer)
+
+	local scroll = AceGUI:Create("ScrollFrame")
+	scroll:SetLayout("Flow") -- probably?
+	scrollcontainer:AddChild(scroll)
+
+	for i, msg in ipairs(msgs) do
+		local linecontainer = AceGUI:Create("SimpleGroup")
+		linecontainer:SetFullWidth(true)
+		linecontainer:SetLayout("Flow")
+
+		local msgHeader = AceGUI:Create("Button")
+		msgHeader:SetText(L["M"])
+		--msgHeader:SetWidth(100)
+		msgHeader:SetRelativeWidth(0.1)
+		msgHeader:SetPoint("LEFT")
+		linecontainer:AddChild(msgHeader)
+
+		local msgLine = AceGUI:Create("InteractiveLabel")
+		msgLine:SetText(msg)
+		msgLine:SetRelativeWidth(0.86)
+		msgLine:SetPoint("RIGHT")
+		msgLine:SetCallback("OnEnter", ShowLabelTooltip)
+
+		linecontainer:AddChild(msgLine)
+
+		scroll:AddChild(linecontainer)
+	end
+
+
+	GUI.display = frame
+	GUI.display:Show()
+
+	return GUI.display
+end
+
+function GUI:Load_Ace_Custom()
+
+	local msgs = {
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+	    "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r",
+	    "|cff9d9d9d|Hitem:7073:846:0:0:0:0:924:0|h[Broken Fang of the Gorilla]|h|r",
+	    "\124cff9d9d9d\124Hitem:7073:846:0:0:0:0:0:0\124h[Broken Fang]\124h\124r",
+	    "\124cffff8000\124Hitem:19019:5335:0:0:0:0:0:0\124h[雷霆之怒]\124h\124r",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+		"你可以到如下网址反应Bug和提供建议: |cffffff78http://www.wowace.com/forums/index.php?topic=10990.0|r",
+		"当反应Bug的时候，请确认你在|cffffff78何种步骤|r下产生的该Bug，并尽可能提供所有的|cffffff78错误信息|r，并请提供出错的GatherMate|cffffff78版本号|r",
+		"以及你当是使用的|cffffff78魔兽世界的客户端语言|r",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式, |cffffff78Cartographer_Data|r载入时，可能会导致你新建立的节点在不被警告的自动覆盖！",
+		"|cffffff78GatherMate_CartImport|r - 这个插件将导入 |cffffff78Cartographer_<Profession>|r 已存在的数据库到GatherMate",
+		"|cffffff78GatherMate_Data|r - 这个插件是WoWHead网站的数据库的GatherMate版本，它每周都更新一次，你可以打开自动更新选项，在其更新后",
+		"|cffffff78Minimap Button Bag|r (或者类似的插件) 很可能会把你所有的迷你地图按钮收起，禁用它们！",
+		"锁定数据库选项将冻结你的数据库状态。一旦你锁定了数据库，对其任何操作(增加节点、删除节点、修改节点包括清理数据库和导入数据库)均不可用",
+		"合并会把GatherMate2Date数据加入你的数据库，覆盖将用GatherMate2Data中的数据替换你现有的数据库",
+		"当你升级你的数据模块的时候自动导入升级后的数据，你当前的导入选项将控制导入的数据类型。",
+		"如果 |cffffff78Cartographer_Data|r 中的数据和GatherMate数据不符，用户将被提示选择数据库修改的方式",
+		"不，我不会。尽管可能会有其他的作者以插件的形式支持，但是GatherMate的核心组件将不会支持该功能",
+	}
+
+	local frame = AceGUI:Create("TritonFrame")
+	frame:SetTitle(addonName)
+	frame:SetCallback("OnClose",function(widget) AceGUI:Release(widget) end)
+	frame:SetLayout("Fill")
+
+	local scrollcontainer = AceGUI:Create("SimpleGroup") -- "InlineGroup" is also good
+	--local frame = scrollcontainer
+	scrollcontainer:SetFullWidth(true)
+	scrollcontainer:SetFullHeight(true) -- probably?
+	scrollcontainer:SetLayout("Fill") -- important!
+	frame:AddChild(scrollcontainer)
+
+	local scroll = AceGUI:Create("TritonScrollFrame")
+	scroll:SetLayout("Flow") -- probably?
+	scroll:SetFullWidth(true)
+	scrollcontainer:AddChild(scroll)
+
+	for i, msg in ipairs(msgs) do
+		local linecontainer = AceGUI:Create("SimpleGroup")
+		linecontainer:SetFullWidth(true)
+		linecontainer:SetLayout("Flow")
+
+		--local msgHeader = AceGUI:Create("Button")
+		--msgHeader:SetText(L["@"])
+		--msgHeader:SetWidth(100)
+		local msgHeader = AceGUI:Create("Icon")
+		msgHeader:SetImageSize(20,20)
+		--local msgHeader = AceGUI:Create("InteractiveLabel")
+		--msgHeader:SetText("M")
+		--msgHeader:SetImage("Interface\\Addons\\Triton\\Media\\chat.png")
+		msgHeader:SetImage("Interface\\Icons\\Ability_Rogue_Sprint")
+		--msgHeader:SetImageSize(20,20)
+		msgHeader:SetRelativeWidth(0.06)
+		msgHeader:SetWidth(30)
+		msgHeader:SetPoint("LEFT")
+		linecontainer:AddChild(msgHeader)
+
+		local msgLine = AceGUI:Create("InteractiveLabel")
+		msgLine:SetText(msg)
+		msgLine:SetRelativeWidth(0.92)
+		msgLine:SetPoint("RIGHT")
+		msgLine:SetCallback("OnEnter", ShowLabelTooltip)
+
+		linecontainer:AddChild(msgLine)
+
+		scroll:AddChild(linecontainer)
+
+		addon:Printf("test " .. msg)
+	end
+
+	GUI.display = frame
+	GUI.display:Show()
+
+	return GUI.display
+end
+
+function ShowLabelTooltip()
+	addon:Printf('ShowLabelTooltip')
+end
+
+
+------------------------------------------------------------------------------
+-- EOF
+

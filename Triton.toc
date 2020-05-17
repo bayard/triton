@@ -1,0 +1,48 @@
+## Interface: 11304
+## Title: Triton
+## Title-zhCN: Triton
+## Author: Triton@匕首岭
+## Version: 1.0
+## Notes: |cff00aaaa Triton organize messages into events. Easy to track events of LFG, gold raid or others you interested.|r
+## Notes-zhCN: |cff00aaaa Triton 消息事件管理，比如可以很方便地关注金团，关注副本组团信息或者其它感兴趣的话题。|r
+## SavedVariables: TritonDB
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceHook-3.0\AceHook-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+
+Libs\LibDBIcon-1.0\embeds.xml
+Libs\LibDBIcon-1.0\LibDBIcon-1.0\lib.xml
+Libs\LibParse\Load.xml
+
+Locale\enUS.lua
+Locale\zhCN.lua
+
+Widgets\ListBox.lua
+Widgets\TritonLabel.lua
+Widgets\TritonFrame.lua
+Widgets\TritonScrollFrame.lua
+
+Triton.lua
+
+Modules\Options.lua
+Modules\GUI.lua
+Modules\Minimap.lua
+Modules\Message.lua
+
+CChatNotifier\MainUI.lua
+CChatNotifier\MainUI_functions.lua
+CChatNotifier\ListFrame.lua
+
+##EOF
