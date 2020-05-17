@@ -184,7 +184,7 @@ function GUI:Load_Ace_Custom()
 	-- the scroll container is to hold message widgets
 	self.scroll = scroll
 
-	addon:Printf('Wipe self.lines table')
+	--addon:Printf('Wipe self.lines table')
 	-- the table to save widgets
 	if(self.lines ~=nil ) then
 		wipe(self.lines)
@@ -318,7 +318,7 @@ function GUI:AdjustLines(topics)
 	local tsize = table_count(topics)
 	local lsize = table_count(self.lines)
 	local newlines = tsize - lsize
-	addon:Printf("newlines: " .. tostring(tsize) .. "-" .. tostring(lsize) .. "=" .. tostring(newlines))
+	--addon:Printf("newlines: " .. tostring(tsize) .. "-" .. tostring(lsize) .. "=" .. tostring(newlines))
 
 	-- Add widgets to contain new lines
 	if(newlines>=0) then
@@ -397,7 +397,7 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 		-- if new update on old message
 		if( topics[key]['animate'] ) then
 			-- create animation
-			addon:Printf("do alpha animation")
+			--addon:Printf("do alpha animation")
 			f = self.lines[widgetIdx]["msgLine"].frame
 			flasher = f:CreateAnimationGroup() 
 
@@ -471,7 +471,7 @@ function GUI:ShowTooltip(from_widget)
 	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 	local itemLink = "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r"
     if itemLink then
-		addon:Printf('ShowLabelTooltip')
+		--addon:Printf('ShowLabelTooltip')
         GameTooltip:SetHyperlink(itemLink)
     else
         GameTooltip:AddLine("Non-existant link !")
@@ -527,7 +527,7 @@ end
 
 function ClickLabel(from_widget)
 	buttonName = GetMouseButtonClicked();
-	addon:Printf('ClickLabel:' .. buttonName)
+	--addon:Printf('ClickLabel:' .. buttonName)
 	if buttonName == "LeftButton" then
 		GUI:WhisperPlayer(from_widget)
 	else

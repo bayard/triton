@@ -17,7 +17,7 @@ Options.defaults = {
 }
 
 function Options:Load()
-	addon:Printf("On option load():")
+	--addon:Printf("On option load():")
 
 	--[[    
     -- Initialize keywords with db value or empty table if no value in db
@@ -123,7 +123,7 @@ function Options:Load()
 		end
 	end
 
-	addon:Printf("globalswitch=" .. tostring(addon.db.global.globalswitch))
+	--addon:Printf("globalswitch=" .. tostring(addon.db.global.globalswitch))
 end
 
 function Options:SaveSession()
@@ -199,6 +199,13 @@ function Options.GetOptions(uiType, uiName, appName)
 				end,
 			args = {
 
+				addoninfo = {
+					type = "description",
+					name = L["ADDON_INFO"],
+					descStyle = L["ADDON_INFO"],
+					order = 0.1,
+				},
+
 				header01 = {
 					type = "header",
 					name = "",
@@ -212,7 +219,7 @@ function Options.GetOptions(uiType, uiName, appName)
 					max = 600,
 					softMin = 10,
 					softMax = 600,
-					name = L["Message live time"],
+					name = L["Message alive time"],
 					desc = L["How long will message be removed from event (default to 120 seconds)?"],
 					width = "normal",
 					order = 1.1,
@@ -232,7 +239,7 @@ function Options.GetOptions(uiType, uiName, appName)
 					softMin = 3,
 					softMax = 60,
 					name = L["Font size"],
-					desc = L["Font size of event window (default to 12.5)."],
+					desc = L["Font size of event window (default to 12.8)."],
 					width = "normal",
 					order = 2.1,
 				},
@@ -256,7 +263,18 @@ function Options.GetOptions(uiType, uiName, appName)
 					order = 3.1,
 				},
 
+				header06 = {
+					type = "header",
+					name = "",
+					order = 6.01,
+				},
 
+				authorinfo = {
+					type = "description",
+					name = L["AUTHOR_INFO"],
+					descStyle = L["AUTHOR_INFO"],
+					order = 6.1,
+				},
 			},
 		}
 		return options

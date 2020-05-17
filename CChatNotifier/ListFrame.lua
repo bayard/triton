@@ -127,38 +127,38 @@ local function MakeEditBox(parent, maxLen, height, isMultiline)
 end
 
 -- Subframe with add form
-local addFrame = MakeSubFrame(nil, L["UI_ADDFORM_TITLE"]);
+local addFrame = MakeSubFrame(nil, L["Add new keyword"]);
 addFrame.searchLabel = addFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
 addFrame.searchLabel:SetPoint("TOPLEFT", addFrame.title, "BOTTOMLEFT", 0, -16);
 addFrame.searchLabel:SetPoint("TOPRIGHT", addFrame.title, "BOTTOMRIGHT", 0, -16);
-addFrame.searchLabel:SetText(L["UI_ADDFORM_NAME"]);
+addFrame.searchLabel:SetText(L["Keywords (, & - may be used)"]);
 addFrame.searchLabel:SetJustifyH("LEFT");
 addFrame.searchEdit = MakeEditBox(addFrame, 40, 27, false);
 addFrame.searchEdit:SetPoint("TOPLEFT", addFrame.searchLabel, "BOTTOMLEFT", 0, -4);
 addFrame.searchEdit:SetPoint("TOPRIGHT", addFrame.searchLabel, "BOTTOMRIGHT", 0, -4);
 addFrame.okbutton = CreateFrame("Button", nil, addFrame, "OptionsButtonTemplate");
-addFrame.okbutton:SetText(L["UI_ADDFORM_ADD_BUTTON"]);
+addFrame.okbutton:SetText(L["Add"]);
 addFrame.okbutton:SetPoint("TOPLEFT", addFrame.searchEdit, "BOTTOMLEFT", 0, -10);
 addFrame.okbutton:SetWidth(125);
 addFrame.backbutton = CreateFrame("Button", nil, addFrame, "OptionsButtonTemplate");
-addFrame.backbutton:SetText(L["UI_BACK"]);
+addFrame.backbutton:SetText(L["Back"]);
 addFrame.backbutton:SetPoint("TOPRIGHT", addFrame.searchEdit, "BOTTOMRIGHT", 0, -10);
 addFrame.backbutton:SetWidth(75);
 
 -- Subframe with delete all form
-local deleteAllFrame = MakeSubFrame(nil, L["UI_RMALL_TITLE"]);
+local deleteAllFrame = MakeSubFrame(nil, L["Remove all keywords"]);
 deleteAllFrame.desc = deleteAllFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
 deleteAllFrame.desc:SetPoint("TOPLEFT", deleteAllFrame.title, "BOTTOMLEFT", 0, -16);
 deleteAllFrame.desc:SetPoint("TOPRIGHT", deleteAllFrame.title, "BOTTOMRIGHT", 0, -16);
-deleteAllFrame.desc:SetText(L["UI_RMALL_DESC"]);
+deleteAllFrame.desc:SetText(L["Keywords will be removed!"]);
 deleteAllFrame.desc:SetJustifyH("LEFT");
 deleteAllFrame.desc:SetJustifyV("CENTER");
 deleteAllFrame.okbutton = CreateFrame("Button", nil, deleteAllFrame, "OptionsButtonTemplate");
-deleteAllFrame.okbutton:SetText(L["UI_RMALL_REMOVE"]);
+deleteAllFrame.okbutton:SetText(L["Remove"]);
 deleteAllFrame.okbutton:SetPoint("TOPLEFT", deleteAllFrame.desc, "BOTTOMLEFT", 0, -10);
 deleteAllFrame.okbutton:SetWidth(125);
 deleteAllFrame.backbutton = CreateFrame("Button", nil, deleteAllFrame, "OptionsButtonTemplate");
-deleteAllFrame.backbutton:SetText(L["UI_CANCEL"]);
+deleteAllFrame.backbutton:SetText(L["Cancel"]);
 deleteAllFrame.backbutton:SetPoint("TOPRIGHT", deleteAllFrame.desc, "BOTTOMRIGHT", 0, -10);
 deleteAllFrame.backbutton:SetWidth(75);
 
@@ -266,7 +266,7 @@ addFrame.okbutton:SetScript ("OnClick", function (self)
     local sstring = addFrame.searchEdit:GetText();
     sstring = strtrim(sstring);
     if string.len(sstring) == 0 then
-        addon:PrintError(L["UI_ADDFORM_ERR_NO_INPUT"]);
+        addon:PrintError(L["Keyword could not be empty"]);
 		return;
     end
 	addon:AddToList(sstring);

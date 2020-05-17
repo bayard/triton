@@ -260,7 +260,7 @@ function TritonMessage:HookMessages()
         }
     )
 
-    addon:Printf("TritonMessage:HookMessages()")
+    --addon:Printf("TritonMessage:HookMessages()")
     addon.frame:RegisterEvent("CHAT_MSG_CHANNEL");
 
     -- setup topic cleaner run interval
@@ -352,7 +352,7 @@ local function SearchMessage(msg, from, source, guid)
     -- Skipped from if found in Global Ignore List
     if GlobalIgnoreDB and has_value(GlobalIgnoreDB.ignoreList, from)  then 
         -- If from is in global ignore list, skip
-        addon:Printf("skip " .. from .. ' in GlobalIgnoreDB')
+        --addon:Printf("skip " .. from .. ' in GlobalIgnoreDB')
         return;
     end
 
@@ -402,7 +402,7 @@ end)
 
 
 function TritonMessage:OnInitialize()
-    addon:Printf("TritonMessage:OnInitialize()")
+    --addon:Printf("TritonMessage:OnInitialize()")
 end
 
 ------------- messages handling ---------------
@@ -486,14 +486,14 @@ function TritonMessage:BuildTopicsOld(msg, salted_msg, from, source, guid, engCl
     -- if cleaner run time reached
     if ((GetTime() - self.lastTopicClean) > addon.db.global.cleaner_run_interval) then
         -- remove long exists topic
-        addon:Printf("Running cleaner...");
+        --addon:Printf("Running cleaner...");
         for key, t in pairs(self.topics) do
             if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
                 -- remove existing widget from line container
                 addon.GUI:RemoveTopics(t)
 
                 -- simply set the topic to nil to avoid memory leak
-                addon:Printf("Removed topic:" .. key);
+                --addon:Printf("Removed topic:" .. key);
                 self.topics[key] = nil
             end
         end
@@ -553,11 +553,11 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
     -- if cleaner run time reached
     if ((GetTime() - self.lastTopicClean) > addon.db.global.cleaner_run_interval) then
         -- remove long exists topic
-        addon:Printf("Running cleaner...");
+        --addon:Printf("Running cleaner...");
         for key, t in pairs(self.topics) do
             if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
                 -- simply set the topic to nil to avoid memory leak
-                addon:Printf("Removed topic:" .. key);
+                --addon:Printf("Removed topic:" .. key);
                 self.topics[key] = nil
             end
         end

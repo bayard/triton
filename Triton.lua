@@ -16,7 +16,8 @@ addon.METADATA = {
 
 -- called by AceAddon when Addon is fully loaded
 function addon:OnInitialize()
-	addon:Printf(L["Triton OnInitialize() running..."])
+	--addon:Printf(L["Triton running..."])
+	--addon:Printf(L["Use /triton to open message topic tracking window"])
 
 	-- makes Module ABC accessable as addon.ABC
 	for module in pairs(addon.modules) do
@@ -30,7 +31,7 @@ function addon:OnInitialize()
 	addon.Options.frame = optionsFrame
 
 	-- addon state flags
-	addon.isDebug = true
+	addon.isDebug = false
 	addon.isDemo = false
 	addon.isInfight = false
 	addon.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
@@ -82,11 +83,11 @@ function addon:OnEnable()
 end
 
 function addon:OptionClicked()
-	addon:Printf(L["Option clicked"])
+	--addon:Printf(L["Option clicked"])
 end
 
 function addon:SwitchOn()
-	addon:Printf(L["SwitchOn"])
+	--addon:Printf(L["SwitchOn"])
 
 	addon.GUI:Load_Ace_Custom()
 	addon.GUI.display:Show()
@@ -95,7 +96,7 @@ function addon:SwitchOn()
 end
 
 function addon:SwitchOff()
-	addon:Printf(L["SwitchOff"])
+	--addon:Printf(L["SwitchOff"])
 	addon.GUI.display:Hide()
 	AceGUI:Release(addon.GUI.display)
 	addon.GUI.display = nil
@@ -104,7 +105,7 @@ function addon:SwitchOff()
 end
 
 function addon:UIToggle()
-	addon:Printf(L["/triton launched"])
+	--addon:Printf(L["/triton launched"])
 
 	-- open or release addon main frame
 	if(addon.GUI.display) then

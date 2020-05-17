@@ -57,7 +57,7 @@ TritonKeywordUI.addFrame.okbutton:SetScript("OnClick", function (self)
     local sstring = TritonKeywordUI.addFrame.searchEdit:GetText();
     sstring = strtrim(sstring);
     if string.len(sstring) == 0 then
-        addon:PrintError(L["UI_ADDFORM_ERR_NO_INPUT"]);
+        addon:PrintError(L["Keyword could not be empty"]);
 		return;
     end
 	addon:AddToList(sstring);
@@ -79,7 +79,7 @@ end)
 TritonKeywordUI.editFrame.okbutton:SetScript("OnClick", function(self)
     local nstring = strtrim(TritonKeywordUI.editFrame.searchEdit:GetText())
     if string.len(nstring) == 0 then
-        addon:PrintError(L["UI_ADDFORM_ERR_NO_INPUT"]);
+        addon:PrintError(L["Keyword could not be empty"]);
 		return;
     end
      addon:RemoveFromList(TritonKeywordUI.editFrame.oldsearch)

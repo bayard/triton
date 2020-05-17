@@ -158,21 +158,21 @@ end
 
 -- Subframe with add form
 do
-    local addFrame = MakeSubFrame(L["UI_ADDFORM_TITLE"]);
+    local addFrame = MakeSubFrame(L["Add new keywords"]);
     addFrame.searchLabel = addFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
     addFrame.searchLabel:SetPoint("TOPLEFT", addFrame.title, "BOTTOMLEFT", 0, -16);
     addFrame.searchLabel:SetPoint("TOPRIGHT", addFrame.title, "BOTTOMRIGHT", 0, -16);
-    addFrame.searchLabel:SetText(L["UI_ADDFORM_NAME"]);
+    addFrame.searchLabel:SetText(L["Keywords (, & - may be used)"]);
     addFrame.searchLabel:SetJustifyH("LEFT");
     addFrame.searchEdit = MakeEditBox(addFrame, 40, 27, false);
     addFrame.searchEdit:SetPoint("TOPLEFT", addFrame.searchLabel, "BOTTOMLEFT", 0, -4);
     addFrame.searchEdit:SetPoint("TOPRIGHT", addFrame.searchLabel, "BOTTOMRIGHT", 0, -4);
     addFrame.okbutton = CreateFrame("Button", nil, addFrame, "OptionsButtonTemplate");
-    addFrame.okbutton:SetText(L["UI_ADDFORM_ADD_BUTTON"]);
+    addFrame.okbutton:SetText(L["Add"]);
     addFrame.okbutton:SetPoint("TOPLEFT", addFrame.searchEdit, "BOTTOMLEFT", 0, -10);
     addFrame.okbutton:SetWidth(125);
     addFrame.backbutton = CreateFrame("Button", nil, addFrame, "OptionsButtonTemplate");
-    addFrame.backbutton:SetText(L["UI_BACK"]);
+    addFrame.backbutton:SetText(L["Back"]);
     addFrame.backbutton:SetPoint("TOPRIGHT", addFrame.searchEdit, "BOTTOMRIGHT", 0, -10);
     addFrame.backbutton:SetWidth(75);
     frame.addFrame = addFrame;
@@ -180,21 +180,21 @@ end
 
 -- Subframe with edit form
 do
-    local editFrame = MakeSubFrame(L["UI_EDITFORM_TITLE"]);
+    local editFrame = MakeSubFrame(L["Edit keywords"]);
     editFrame.searchLabel = editFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
     editFrame.searchLabel:SetPoint("TOPLEFT", editFrame.title, "BOTTOMLEFT", 0, -16);
     editFrame.searchLabel:SetPoint("TOPRIGHT", editFrame.title, "BOTTOMRIGHT", 0, -16);
-    editFrame.searchLabel:SetText(L["UI_ADDFORM_NAME"]);
+    editFrame.searchLabel:SetText(L["Keywords (, & - may be used)"]);
     editFrame.searchLabel:SetJustifyH("LEFT");
     editFrame.searchEdit = MakeEditBox(editFrame, 40, 27, false);
     editFrame.searchEdit:SetPoint("TOPLEFT", editFrame.searchLabel, "BOTTOMLEFT", 0, -4);
     editFrame.searchEdit:SetPoint("TOPRIGHT", editFrame.searchLabel, "BOTTOMRIGHT", 0, -4);
     editFrame.okbutton = CreateFrame("Button", nil, editFrame, "OptionsButtonTemplate");
-    editFrame.okbutton:SetText(L["UI_EDITFORM_CONFIRM_BUTTON"]);
+    editFrame.okbutton:SetText(L["Confirm"]);
     editFrame.okbutton:SetPoint("TOPLEFT", editFrame.searchEdit, "BOTTOMLEFT", 0, -10);
     editFrame.okbutton:SetWidth(125);
     editFrame.backbutton = CreateFrame("Button", nil, editFrame, "OptionsButtonTemplate");
-    editFrame.backbutton:SetText(L["UI_BACK"]);
+    editFrame.backbutton:SetText(L["Back"]);
     editFrame.backbutton:SetPoint("TOPRIGHT", editFrame.searchEdit, "BOTTOMRIGHT", 0, -10);
     editFrame.backbutton:SetWidth(75);
     frame.editFrame = editFrame;
@@ -202,19 +202,19 @@ end
 
 -- Subframe with delete all form
 do
-    local deleteAllFrame = MakeSubFrame(L["UI_RMALL_TITLE"]);
+    local deleteAllFrame = MakeSubFrame(L["Remove all keywords"]);
     deleteAllFrame.desc = deleteAllFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
     deleteAllFrame.desc:SetPoint("TOPLEFT", deleteAllFrame.title, "BOTTOMLEFT", 0, -16);
     deleteAllFrame.desc:SetPoint("TOPRIGHT", deleteAllFrame.title, "BOTTOMRIGHT", 0, -16);
-    deleteAllFrame.desc:SetText(L["UI_RMALL_DESC"]);
+    deleteAllFrame.desc:SetText(L["Keywords will be removed!"]);
     deleteAllFrame.desc:SetJustifyH("LEFT");
     deleteAllFrame.desc:SetJustifyV("CENTER");
     deleteAllFrame.okbutton = CreateFrame("Button", nil, deleteAllFrame, "OptionsButtonTemplate");
-    deleteAllFrame.okbutton:SetText(L["UI_RMALL_REMOVE"]);
+    deleteAllFrame.okbutton:SetText(L["Remove"]);
     deleteAllFrame.okbutton:SetPoint("TOPLEFT", deleteAllFrame.desc, "BOTTOMLEFT", 0, -10);
     deleteAllFrame.okbutton:SetWidth(125);
     deleteAllFrame.backbutton = CreateFrame("Button", nil, deleteAllFrame, "OptionsButtonTemplate");
-    deleteAllFrame.backbutton:SetText(L["UI_CANCEL"]);
+    deleteAllFrame.backbutton:SetText(L["Cancel"]);
     deleteAllFrame.backbutton:SetPoint("TOPRIGHT", deleteAllFrame.desc, "BOTTOMRIGHT", 0, -10);
     deleteAllFrame.backbutton:SetWidth(75);
     frame.deleteAllFrame = deleteAllFrame;
