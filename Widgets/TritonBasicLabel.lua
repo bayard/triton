@@ -28,50 +28,64 @@ local function UpdateImageAnchor(self, shouldHide)
 	local label = self.label
 	local height
 
+	-- fix by Triton
+	local extra_height_only_with_content = 2
+
 	label:ClearAllPoints()
 	image:ClearAllPoints()
 
-	if self.imageshown then
-		local imagewidth = image:GetWidth()
-		if (width - imagewidth) < 200 or (label:GetText() or "") == "" then
-			-- image goes on top centered when less than 200 width for the text, or if there is no text
-			image:SetPoint("TOP")
-			label:SetPoint("TOP", image, "BOTTOM")
-			label:SetPoint("LEFT")
-			label:SetWidth(width)
-			height = image:GetHeight() + label:GetStringHeight()
-		else
-			-- image on the left
-			image:SetPoint("TOPLEFT")
-			if image:GetHeight() > label:GetStringHeight() then
-				label:SetPoint("LEFT", image, "RIGHT", 4, 0)
-			else
-				label:SetPoint("TOPLEFT", image, "TOPRIGHT", 4, 0)
-			end
-			label:SetWidth(width - imagewidth - 4)
-			height = max(image:GetHeight(), label:GetStringHeight())
-		end
-	else
-		-- no image shown
-		label:SetPoint("TOPLEFT")
-		label:SetWidth(width)
-		height = label:GetStringHeight()
-	end
-
 	if shouldHide then
-		height = 0
+		frame:SetHeight(0)
+		frame.height = 0
+		frame:SetWidth(0)
+		frame,width = 0
 	else
+		if self.imageshown then
+			local imagewidth = image:GetWidth()
+			if (width - imagewidth) < 200 or (label:GetText() or "") == "" then
+				-- image goes on top centered when less than 200 width for the text, or if there is no text
+				image:SetPoint("TOP")
+				label:SetPoint("TOP", image, "BOTTOM")
+				label:SetPoint("LEFT")
+				label:SetWidth(width)
+				height = image:GetHeight() + label:GetStringHeight()
+			else
+				-- image on the left
+				image:SetPoint("TOPLEFT")
+				if image:GetHeight() > label:GetStringHeight() then
+					label:SetPoint("LEFT", image, "RIGHT", 4, 0)
+				else
+					label:SetPoint("TOPLEFT", image, "TOPRIGHT", 4, 0)
+				end
+				label:SetWidth(width - imagewidth - 4)
+				height = max(image:GetHeight(), label:GetStringHeight())
+			end
+		else
+			-- no image shown
+			label:SetPoint("TOPLEFT")
+			label:SetWidth(width)
+			height = label:GetStringHeight()
+		end
+
 		-- avoid zero-height labels, since they can used as spacers
 		if not height or height == 0 then
-			height = 1
+			height = 0
 		end
-	end
 
-	self.resizing = true
-	-- print('resizing frame to ' .. tostring(height))
-	frame:SetHeight(height)
-	frame.height = height
-	self.resizing = nil
+		self.resizing = true
+		-- print('resizing frame to ' .. tostring(height))
+		if height == 0 then
+			frame:SetHeight(0)
+			frame.height = 0
+			frame:SetWidth(0)
+			frame,width = 0
+		else
+			height = height + extra_height_only_with_content
+			frame:SetHeight(height)
+			frame.height = height
+		end
+		self.resizing = nil
+	end
 end
 
 --[[-----------------------------------------------------------------------------

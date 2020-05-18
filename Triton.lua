@@ -4,6 +4,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceDB = LibStub("AceDB-3.0")
+local AceGUI = LibStub("AceGUI-3.0")
 local private = {}
 ------------------------------------------------------------------------------
 
@@ -51,6 +52,9 @@ function addon:OnInitialize()
 	addon:RegisterEvent("PLAYER_LOGOUT", function()
 		addon:OnLogout()
 		end)
+
+	-- register triton layout
+	AceGUI:RegisterLayout("Triton", TritonLayoutFunc)
 end
 
 -- called when Player logs out
