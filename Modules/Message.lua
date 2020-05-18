@@ -226,6 +226,55 @@ end
 
 ]]
 
+-- cleaner timer
+function timer_cleaner_cancel()
+    if TritonMessage.cleanerTimer and TritonMessage.cleanerTimer:IsCancelled() == false then
+        TritonMessage.cleanerTimer:Cancel()
+    end
+end
+
+function timer_cleaner_func()
+    timer_cleaner_cancel()
+
+    -- do cleaning
+    TritonMessage:RemoveExpired();
+
+    -- If hooked, setup timer for next run, otherwise just end the timer
+    if TritonMessage.hooked then
+        -- addon:Printf("cleaner timer fired in " .. tostring(addon.db.global.cleaner_run_interval) .. ' seconds' )
+        --C_Timer.After(addon.db.global.cleaner_run_interval, timer_test)
+        TritonMessage.cleanerTimer = C_Timer.NewTimer(addon.db.global.cleaner_run_interval, timer_cleaner_func)
+    end
+end
+
+function TritonMessage:SetupCleanerTimers()
+    timer_cleaner_func()
+end
+
+-- refresh timer
+function timer_refresh_cancel()
+    if TritonMessage.refreshTimer and TritonMessage.refreshTimer:IsCancelled() == false then
+        TritonMessage.refreshTimer:Cancel()
+    end
+end
+
+function timer_refresh_func()
+    timer_refresh_cancel()
+
+    -- do refreshing
+    TritonMessage:UpdateTopicsUIFromTimer()
+
+    -- If hooked, setup timer for next run, otherwise just end the timer
+    if TritonMessage.hooked then
+        --addon:Printf("refresh timer fired in " .. tostring(addon.db.global.refresh_interval) .. ' seconds' )
+        --C_Timer.After(addon.db.global.cleaner_run_interval, timer_test)
+        TritonMessage.cleanerTimer = C_Timer.NewTimer(addon.db.global.refresh_interval, timer_refresh_func)
+    end
+end
+
+function TritonMessage:SetupRefreshTimers()
+    timer_refresh_func()
+end
 
 function TritonMessage:HookMessages()
     local chatEvents = (
@@ -262,12 +311,7 @@ function TritonMessage:HookMessages()
 
     --addon:Printf("TritonMessage:HookMessages()")
     addon.frame:RegisterEvent("CHAT_MSG_CHANNEL");
-
-    -- setup topic cleaner run interval
-    self.lastTopicClean = GetTime();
-
-    -- setup refresh interval flag
-    self.lastRefresh = GetTime() - addon.db.global.refresh_interval;
+    self.hooked = true
 
     -- wipe topics 
     if(self.topics) then
@@ -275,6 +319,18 @@ function TritonMessage:HookMessages()
     else
         self.topics = {}
     end
+
+    -- setup topic cleaner run interval
+    self.lastTopicClean = GetTime();
+
+    -- setup cleaner timer
+    self:SetupCleanerTimers()
+
+    -- setup refresh timer
+    self:SetupRefreshTimers()
+
+    -- setup refresh interval flag
+    self.lastRefresh = GetTime() - addon.db.global.refresh_interval;
 
     --for key, value in pairs (chatEvents) do
     --    ChatFrame_AddMessageEventFilter(value, TritonChatFilter)
@@ -317,6 +373,8 @@ function TritonMessage:UnhookMessages()
     addon:Printf("TritonMessage:UnhookMessages()")
     addon.frame:UnregisterEvent("CHAT_MSG_CHANNEL");
 
+    self.hooked = false
+
     --for key, value in pairs (chatEvents) do
     --    ChatFrame_RemoveMessageEventFilter(value, TritonChatFilter)
     --end
@@ -347,7 +405,7 @@ end
 -- @param from The player it is from
 -- @param source The source of the message (SAY, CHANNEL)
 -- @param channelName If source is CHANNEL this is the channel name
-local function SearchMessage(msg, from, source, guid)
+function TritonMessage:SearchMessage(msg, from, source, guid)
 
     -- Skipped from if found in Global Ignore List
     if GlobalIgnoreDB and has_value(GlobalIgnoreDB.ignoreList, from)  then 
@@ -372,28 +430,26 @@ local function SearchMessage(msg, from, source, guid)
     -- addon:Printf("TritonMessage:salted_msg " .. salted_msg)
 
     -- check if message pass or not
-    local pass, keyword = TritonMessage:FilterTopics(msg, salted_msg, from, source, guid)
+    local pass, keyword = self:FilterTopics(msg, salted_msg, from, source, guid)
 
     if pass then
         -- build topics and do cleaner
-        TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
-        -- Update topics
-        TritonMessage:UpdateTopicsUI()
-        -- mark message had been displayed
-        TritonMessage:MarkTopic(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
+        self:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
+        -- Update topics once message received
+        -- self:UpdateTopicsUI()
     end
 end
 
 function handlers.CHAT_MSG_CHANNEL(text, playerName, _, channelName, _, _, _, _, _, _, _, guid)
-    SearchMessage(text, playerName, channelName, guid);
+    TritonMessage:SearchMessage(text, playerName, channelName, guid);
 end
 
 function handlers.CHAT_MSG_SAY(text, playerName,  _, _, _, _, _, _, _, _, _, guid)
-    SearchMessage(text, playerName, L["TRITON"]);
+    TritonMessage:SearchMessage(text, playerName, L["TRITON"]);
 end
 
 function handlers.CHAT_MSG_YELL(text, playerName,  _, _, _, _, _, _, _, _, _, guid)
-    SearchMessage(text, playerName, L["TRITON"]);
+    TritonMessage:SearchMessage(text, playerName, L["TRITON"]);
 end
 
 addon.frame:SetScript( "OnEvent", function(self, event, ...) 
@@ -439,7 +495,12 @@ end
 
 -- Remove expired messages
 function TritonMessage:RemoveExpired()
-    --addon:Printf("Running cleaner...");
+    -- addon:Printf("Running cleaner ...");
+
+    if self.topics == nil then
+        return
+    end
+
     for key, t in pairs(self.topics) do
         if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
             -- simply set the topic to nil to avoid memory leak
@@ -469,7 +530,7 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         topic["nameonly"] = nameNoDash
         topic["keyword"] = string.upper(keyword)
         topic["class"] = engClass
-        topic["animate"] = true
+        topic["animated"] = false
         self.topics[topic_idx] = topic
 
     -- new topic
@@ -485,7 +546,7 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         topic["nameonly"] = nameNoDash
         topic["keyword"] = string.upper(keyword)
         topic["class"] = engClass
-        topic["animate"] = true
+        topic["animated"] = false
 
         -- print(table_to_string(topic))
         
@@ -493,43 +554,29 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         self.topics[topic_idx] = topic    
     end
 
+    -- addtional cleaner in case timer stop functioning
     -- if cleaner run time reached
-    if ((GetTime() - self.lastTopicClean) > addon.db.global.cleaner_run_interval) then
+    if ((GetTime() - self.lastTopicClean) > addon.db.global.safe_cleaner_run_interval) then
         -- remove long exists topic
-        TritonMessage:RemoveExpired()
+        self:RemoveExpired()
         self.lastTopicClean = GetTime()
     end
-
-    ----[[
-    --print(table_to_string(self.topics))
-    --]]
 end
 
-
--- mark topic had been animated
-function TritonMessage:MarkTopic(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
-    local topic_idx = guid .. ":" .. keyword
-
-    -- find if the topic exists in topics table
-    local foundtopic = self.topics[topic_idx]
-
-    -- existing topic
-    if foundtopic ~= nil then
-        local topic = foundtopic
-
-        -- update fields
-        topic["animate"] = false
-
-        self.topics[topic_idx] = topic
-    end
-end
 
 function TritonMessage:UpdateTopicsUI()
+    --addon:Printf("Refresh topics upon message receiving ...");
     --print(table_to_string(self.topics))
-    -- Only refresh when refresh every set interval
+    -- Only refresh when refresh every interval
     if GetTime() - self.lastRefresh > addon.db.global.refresh_interval then
         addon.GUI:RefreshTopics(self.topics)
         self.lastRefresh = GetTime()
     end
+end
 
+function TritonMessage:UpdateTopicsUIFromTimer()
+    --addon:Printf("Refresh topics by timer ...");
+    self:RemoveExpired()
+    addon.GUI:RefreshTopics(self.topics)
+    self.lastRefresh = GetTime()
 end

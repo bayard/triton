@@ -9,7 +9,8 @@ local WidgetLists = AceGUIWidgetLSMlists
 Options.defaults = {
 	global = {
 		globalswitch = true,
-		cleaner_run_interval = 10,
+		cleaner_run_interval = 60,
+		safe_cleaner_run_interval = 300,
 		max_topic_live_secs = 120,
 		refresh_interval = 2,
 		fontsize = 12.8,
@@ -24,7 +25,7 @@ function Options:Load()
     addon.db.global.keywords =  addon.db.global.keywords or {}
 
     -- Topic cleaner run interval
-    addon.db.global.cleaner_run_interval = addon.db.global.cleaner_run_interval or 10
+    addon.db.global.cleaner_run_interval = addon.db.global.cleaner_run_interval or cleaner_run_interval
     --addon.db.global.max_topic_live_secs = addon.db.global.max_topic_live_secs or 30
     addon.db.global.max_topic_live_secs = 120
 

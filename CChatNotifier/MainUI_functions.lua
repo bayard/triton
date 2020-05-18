@@ -16,7 +16,6 @@ local entryCount = 0;
 
 --- Open settings menu
 TritonKeywordUI.settingsBtn:SetScript("OnClick", function(self) 
-    print("InterfaceOptionsFrame_OpenToCategory: " .. addonName );
     InterfaceOptionsFrame_Show()
     InterfaceOptionsFrame_OpenToCategory(addonName);
     InterfaceOptionsFrame_OpenToCategory(addonName);

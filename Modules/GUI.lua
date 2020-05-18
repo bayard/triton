@@ -163,7 +163,7 @@ function GUI:AdjustLines(topics)
 	local tsize = table_count(topics)
 	local lsize = table_count(self.lines)
 	local newlines = tsize - lsize
-	--addon:Printf("newlines: " .. tostring(tsize) .. "-" .. tostring(lsize) .. "=" .. tostring(newlines))
+	addon:Printf("newlines: " .. tostring(tsize) .. "-" .. tostring(lsize) .. "=" .. tostring(newlines))
 
 	-- Add widgets to contain new lines
 	if(newlines>=0) then
@@ -204,11 +204,10 @@ function GUI:AdjustLines(topics)
 		for i = lsize, lsize+newlines+1, -1 do
 			self.lines[i]["msgLine"]:SetText(nil)
 			self.lines[i]["msgLine"]:Hide()
-			--self.lines[i]["msgLine"]:SetHeight(0)
-			--self.lines[i]["linecontainer"]:SetHeight(0)
 		end
 	end
 
+	self.scroll:DoLayout()
 
 end
 
@@ -237,30 +236,32 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 		local dispMsg = "|cff00cc00" .. topics[key]["keyword"] .. 
 			" |cffca99ff[" ..playerStr .. 
 			"|cffca99ff] |cff00cccc" .. topics[key]["msg"] ..  
-			" |cff666666" .. tostring(secs) .. "s";
+			" |cffcccc00" .. tostring(secs) .. "s";
 		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		self.lines[widgetIdx]["msgLine"]:Show()
 
 		-- if new update on old message
-		if( topics[key]['animate'] ) then
+		if( not topics[key]['animated'] ) then
 			-- create animation
 			--addon:Printf("do alpha animation")
 			f = self.lines[widgetIdx]["msgLine"].frame
 			flasher = f:CreateAnimationGroup() 
 
 			fade1 = flasher:CreateAnimation("Alpha")
-			fade1:SetDuration(0.3)
-			fade1:SetFromAlpha(0.8)
-			fade1:SetToAlpha(0.2)
+			fade1:SetDuration(0.1)
+			fade1:SetFromAlpha(1)
+			fade1:SetToAlpha(0.5)
 			fade1:SetOrder(1)
 
 			fade2 = flasher:CreateAnimation("Alpha")
-			fade2:SetDuration(0.7)
-			fade2:SetFromAlpha(0.2)
+			fade2:SetDuration(0.26)
+			fade2:SetFromAlpha(0.5)
 			fade2:SetToAlpha(1)
 			fade2:SetOrder(2)
 
 			flasher:Play()
+
+			topics[key]["animated"] = true
 		end
 
 		-- save current top in widget line's container
@@ -293,7 +294,7 @@ function GUI:RefreshTopicsNormal(topics)
 		local dispMsg = "|cff00cc00" .. topic["keyword"] .. 
 			" |cff7020d0[" ..playerStr .. 
 			"|cff7020d0] |cff00cccc" .. topic["msg"] ..  
-			" |cffcccccc[" .. tostring(secs) .. "s]";
+			" |cffcccc00[" .. tostring(secs) .. "s]";
 		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		self.lines[widgetIdx]["topic"] = topic
 		widgetIdx = widgetIdx + 1
@@ -386,10 +387,10 @@ function GUI:PlayerMenu(from_widget)
 	end
 
 	local menu = {
-	    { text = L["Choose operation: "] .. topic["nameonly"] , isTitle = true},
+	    { text = L["Choose operation: |cff00cccc"] .. topic["nameonly"] , isTitle = true},
 	    { text = L["Block user"], func = function() C_FriendList.AddIgnore(topic["from"]); print(topic["nameonly"] .. L[" had been ignored."]); end },
 	    { text = L["Whisper"], func = function() ChatFrame_SendTell(topic["from"]); end },
-	    { text = L["Cancel"], func = function() return; end },
+	    { text = L["|cffff9900Cancel"], func = function() return; end },
 	}
 	local menuFrame = CreateFrame("Frame", "TopicMenuFrame", from_widget.frame, "UIDropDownMenuTemplate")
 

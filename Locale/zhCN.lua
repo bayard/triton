@@ -27,6 +27,11 @@ L["Refresh interval"] = "更新频率"
 L["How frequent to refresh event window (default to 2 seconds)?"] = "窗口刷新频率（缺省2秒）。"
 L["enter /triton for main interface"] = "输入 /triton 打开 Triton 开始跟踪事件"
 
+L["Choose operation: |cff00cccc"] = "选择操作：|cff00cccc"
+L["Block user"] = "屏蔽此用户"
+L["Whisper"] = "发私信"
+L["|cffff9900Cancel"] = "|cffff9900取消"
+
 L["ADDON_INFO"] = '|cffca99ffTriton|r 将杂乱的聊天消息组织成清晰明了的主题，无论是关注金团还是寻找队伍等， 从此变得非常简单。'
 
 L["AUTHOR_INFO"] = '提示：当输入关键字，可用逗号隔开多个关键字。|cff00cccc&|r符号表示|cff00cccc与|r，|cff00cccc-|r符号表示|cff00cccc非|r。大小写忽略。特殊职业关键字，如：|cff00ccccclass:warlock|r表示术士。\n\n' .. 
