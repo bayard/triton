@@ -437,73 +437,16 @@ function TritonMessage:FilterTopics(msg, salted_msg, from, source, guid)
     return false
 end
 
-function TritonMessage:BuildTopicsOld(msg, salted_msg, from, source, guid, engClass, keyword)
-    -- addon:Printf("TritonMessage:BuildTopics keyword:[" .. tostring(keyword) .. "], salted_msg=" .. salted_msg)
-
-    local topic_idx = guid .. ":" .. keyword
-
-    -- find if the topic exists in topics table
-    local foundtopic = self.topics[topic_idx]
-
-    -- existing topic
-    if foundtopic ~= nil then
-        local topic = foundtopic
-
-        addon.GUI:TouchTopic(topic)
-
-        -- update fields
-        topic["first"] = false
-        topic["time"] = GetTime()
-        topic["msg"] = msg
-        topic["from"] = from
-        topic["class"] = engClass
-        self.topics[topic_idx] = topic
-
-    -- new topic
-    else
-
-        -- set widget and container info in topic obj        
-        local topic = {}
-        topic["idx"] = topic_idx
-        topic["first"] = true
-        topic["time"] = GetTime()
-        topic["msg"] = msg
-        topic["from"] = from
-        topic["class"] = engClass
-
-        -- insert new widget into scroll container
-        msgWidget, lineContainer = addon.GUI:AddTopics(self.topics, topic)
-
-        topic["widget"] = lineContainer
-        topic["label"] = msgWidget
-
-        -- print(table_to_string(topic))
-        
-        -- add the new topic in topics table
-        self.topics[topic_idx] = topic    
-    end
-
-    -- if cleaner run time reached
-    if ((GetTime() - self.lastTopicClean) > addon.db.global.cleaner_run_interval) then
-        -- remove long exists topic
-        --addon:Printf("Running cleaner...");
-        for key, t in pairs(self.topics) do
-            if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
-                -- remove existing widget from line container
-                addon.GUI:RemoveTopics(t)
-
-                -- simply set the topic to nil to avoid memory leak
-                --addon:Printf("Removed topic:" .. key);
-                self.topics[key] = nil
-            end
+-- Remove expired messages
+function TritonMessage:RemoveExpired()
+    --addon:Printf("Running cleaner...");
+    for key, t in pairs(self.topics) do
+        if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
+            -- simply set the topic to nil to avoid memory leak
+            --addon:Printf("Removed topic:" .. key);
+            self.topics[key] = nil
         end
-
-        self.lastTopicClean = GetTime()
     end
-
-    ----[[
-    --print(table_to_string(self.topics))
-    --]]
 end
 
 function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
@@ -553,15 +496,7 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
     -- if cleaner run time reached
     if ((GetTime() - self.lastTopicClean) > addon.db.global.cleaner_run_interval) then
         -- remove long exists topic
-        --addon:Printf("Running cleaner...");
-        for key, t in pairs(self.topics) do
-            if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
-                -- simply set the topic to nil to avoid memory leak
-                --addon:Printf("Removed topic:" .. key);
-                self.topics[key] = nil
-            end
-        end
-
+        TritonMessage:RemoveExpired()
         self.lastTopicClean = GetTime()
     end
 
@@ -569,6 +504,7 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
     --print(table_to_string(self.topics))
     --]]
 end
+
 
 -- mark topic had been animated
 function TritonMessage:MarkTopic(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)

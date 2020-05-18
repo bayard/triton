@@ -20,108 +20,6 @@ end
 function GUI:OnLogout()
 end
 
-function GUI:CreateNativeFrame( frmWidth, frmHeight )
-	tObj = CreateFrame("Frame", "TritonUIFrame", UIParent)
-    tObj:SetPoint("CENTER", UIParent, "CENTER")
-    tObj:SetHeight(frmHeight)
-    tObj:SetWidth(frmWidth)
-    tObj:SetBackdrop({bgFile="Interface\\Tooltips\\UI-Tooltip-Background", edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", tile = false, tileSize = 1, edgeSize = 10, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
-    tObj:SetBackdropColor(0, 0, 0, 0.75)
-    tObj:EnableMouse(true)
-    tObj:SetMovable(true)
-    tObj:SetResizable(true)
-    tObj:SetScript("OnDragStart", function(self) 
-        self.isMoving = true
-        self:StartMoving() 
-    end)
-    tObj:SetScript("OnDragStop", function(self) 
-        self.isMoving = false
-        self:StopMovingOrSizing() 
-        self.x = self:GetLeft() 
-        self.y = (self:GetTop() - self:GetHeight()) 
-        self:ClearAllPoints()
-        self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.x, self.y)
-    end)
-    tObj:SetScript("OnUpdate", function(self) 
-        if self.isMoving == true then
-            self.x = self:GetLeft() 
-            self.y = (self:GetTop() - self:GetHeight()) 
-            self:ClearAllPoints()
-            self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.x, self.y)
-        end
-    end)
-    tObj:SetClampedToScreen(true)
-    tObj:RegisterForDrag("LeftButton")
-    tObj:SetScale(1)
-    tObj.x = tObj:GetLeft() 
-    tObj.y = (tObj:GetTop() - tObj:GetHeight()) 
-    -- tObj:Show()
- 
-    local resizeButton = CreateFrame("Button", "resButton", tObj)
-    resizeButton:SetSize(16, 16)
-    resizeButton:SetPoint("BOTTOMRIGHT")
-    resizeButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    resizeButton:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-    resizeButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-    resizeButton:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            self.isSizing = true
-            self:GetParent():StartSizing("BOTTOMRIGHT")
-            self:GetParent():SetUserPlaced(true)
-        elseif button == "RightButton" then
-            self.isScaling = true
-        end
-    end)
-    resizeButton:SetScript("OnMouseUp", function(self, button)
-        if button == "LeftButton" then
-            self.isSizing = false
-            self:GetParent():StopMovingOrSizing()
-        elseif button == "RightButton" then
-            self.isScaling = false
-        end
-    end)
-    resizeButton:SetScript("OnUpdate", function(self, button)
-        if self.isScaling == true then
-            local cx, cy = GetCursorPosition()
-            cx = cx / self:GetEffectiveScale() - self:GetParent():GetLeft() 
-            cy = self:GetParent():GetHeight() - (cy / self:GetEffectiveScale() - self:GetParent():GetBottom() )
- 
-            local tNewScale = cx / self:GetParent():GetWidth()
-            local tx, ty = self:GetParent().x / tNewScale, self:GetParent().y / tNewScale
-            
-            self:GetParent():ClearAllPoints()
-            self:GetParent():SetScale(self:GetParent():GetScale() * tNewScale)
-            self:GetParent():SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", tx, ty)
-            self:GetParent().x, self:GetParent().y = tx, ty
-        end
-    end)
-
-	local closeButton = CreateFrame("BUTTON", "closeButton", tObj, "UIPanelCloseButton")
-	closeButton:SetSize(24, 24)
-    closeButton:SetPoint("TOPRIGHT")
-    --closeButton:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    --closeButton:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-    --closeButton:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-	closeButton:SetScript("OnClick", function()
-		tObj:Hide()
-	end)
-	tObj.closeButton = closeButton
-
-    return tObj
-end
-
-function GUI:Load()
-	-- Create frame container
-	local frame = GUI:CreateNativeFrame( 480, 320 )
-
-	frame:Show()
-
-	GUI.display = frame
-	GUI.display:Show()
-
-	return GUI.display
-end
-
 function GUI:Load_Ace_Custom()
 
 	--if GUI.display ~= nil then
@@ -208,61 +106,7 @@ function GUI:UpdateAddonUIStatus(isactive)
   end
 end
 
-function GUI:RefreshTopicsOld(topics)
-
-	-- release all child widgets
-	self.scroll:ReleaseChildren()
-
-	--[[
-    Count = 0
-    for Index, Value in pairs( topics ) do
-        Count = Count + 1
-    end
-    print("Topics number=" .. tostring(Count))
-	]]
-	
-	for key, topic in pairs(topics) do
-		-- addon:Printf("test " .. topic["msg"])
-
-		local linecontainer = AceGUI:Create("SimpleGroup")
-		linecontainer:SetFullWidth(true)
-		linecontainer:SetLayout("Flow")
-		--linecontainer:SetHeight(25)
-
-		--[[
-		--local msgHeader = AceGUI:Create("Button")
-		--msgHeader:SetText(L["@"])
-		--msgHeader:SetWidth(100)
-		local msgHeader = AceGUI:Create("Icon")
-		msgHeader:SetImageSize(16,16)
-		--local msgHeader = AceGUI:Create("TritonLabel")
-		--msgHeader:SetText("M")
-		--msgHeader:SetImage("Interface\\Addons\\Triton\\Media\\chat.png")
-		--msgHeader:SetImage("Interface\\Icons\\Ability_Rogue_Sprint") 
-		msgHeader:SetImage("Interface\\AddOns\\Triton\\Media\\chat-bubble")
-		--msgHeader:SetImageSize(20,20)
-		msgHeader:SetRelativeWidth(0.05)
-		msgHeader:SetWidth(25)
-		--msgHeader:SetHeight(25)
-		msgHeader:SetPoint("LEFT")
-		linecontainer:AddChild(msgHeader)
-		]]
-
-		local msgLine = AceGUI:Create("TritonLabel")
-		msgLine:SetText(topic["msg"])
-		--msgLine:SetRelativeWidth(0.93)
-		msgLine:SetRelativeWidth(1)
-		msgLine:SetHeight(25)
-		msgLine:SetPoint("RIGHT")
-		msgLine:SetFont(fontName, addon.db.global.fontsize)
-		msgLine:SetCallback("OnEnter", ShowLabelTooltip(self))
-
-		linecontainer:AddChild(msgLine)
-
-		self.scroll:AddChild(linecontainer)
-	end
-end
-
+--[[
 function GUI:AddTopics(topics, topic)
 
 	local linecontainer = AceGUI:Create("SimpleGroup")
@@ -313,6 +157,7 @@ function GUI:RemoveTopics(topic)
 	--topic["widget"]:Release()
 	topic["widget"].frame.Hide()
 end
+]]
 
 function GUI:AdjustLines(topics)
 	local tsize = table_count(topics)
@@ -358,6 +203,7 @@ function GUI:AdjustLines(topics)
 	else
 		for i = lsize, lsize+newlines+1, -1 do
 			self.lines[i]["msgLine"]:SetText(nil)
+			self.lines[i]["msgLine"]:Hide()
 			--self.lines[i]["msgLine"]:SetHeight(0)
 			--self.lines[i]["linecontainer"]:SetHeight(0)
 		end
@@ -393,6 +239,7 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 			"|cffca99ff] |cff00cccc" .. topics[key]["msg"] ..  
 			" |cff666666" .. tostring(secs) .. "s";
 		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
+		self.lines[widgetIdx]["msgLine"]:Show()
 
 		-- if new update on old message
 		if( topics[key]['animate'] ) then
@@ -525,6 +372,37 @@ function GUI:WhisperPlayer(from_widget)
 	end
 end
 
+function GUI:PlayerMenu(from_widget)
+	local topic = nil
+	for k, v in pairs(self.lines) do
+		if v["msgLine"] == from_widget then
+			topic = v["topic"]
+			break
+		end
+	end
+
+	if topic == nil then
+		return
+	end
+
+	local menu = {
+	    { text = L["Choose operation: "] .. topic["nameonly"] , isTitle = true},
+	    { text = L["Block user"], func = function() C_FriendList.AddIgnore(topic["from"]); print(topic["nameonly"] .. L[" had been ignored."]); end },
+	    { text = L["Whisper"], func = function() ChatFrame_SendTell(topic["from"]); end },
+	    { text = L["Cancel"], func = function() return; end },
+	}
+	local menuFrame = CreateFrame("Frame", "TopicMenuFrame", from_widget.frame, "UIDropDownMenuTemplate")
+
+	-- Make the menu appear at the cursor: 
+	EasyMenu(menu, menuFrame, "cursor", 0 , 0, "MENU");
+	-- Or make the menu appear at the frame:
+	-- menuFrame:SetPoint("LEFT", from_widget.frame, "Center")
+	-- EasyMenu(menu, menuFrame, menuFrame, 0 , 0, "MENU");
+
+	addon:Printf('RightButton:')
+
+end
+
 function ClickLabel(from_widget)
 	buttonName = GetMouseButtonClicked();
 	--addon:Printf('ClickLabel:' .. buttonName)
@@ -536,6 +414,25 @@ function ClickLabel(from_widget)
 			--local name = dropdownFrame.name
 			--ToggleDropDownMenu(1, nil, TargetFrameDropDown, "cursor")
 			--GameTooltip:SetHyperlink("item:16846:0:0:0:0:0:0:0")
+
+			--[[
+			CreateFrame( "GameTooltip", "SenderTooltip", nil, "GameTooltipTemplate" ); -- Tooltip name cannot be nil
+			SenderTooltip:SetOwner( GUI.display.frame, "ANCHOR_NONE" );
+			-- Allow tooltip SetX() methods to dynamically add new lines based on these
+			--SenderTooltip:AddFontStrings(
+			--    SenderTooltip:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),
+			--    SenderTooltip:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) );
+			SenderTooltip:AddLine("New tooltip line", 1, 1, 1)
+			SenderTooltip:Show()
+			]]
+
+			--[[
+			GameTooltip:SetOwner(from_widget.frame, "ANCHOR_LEFT", 50, 0)
+			GameTooltip:AddLine("New tooltip line", 1, 1, 1)
+			GameTooltip:Show()
+			]]
+
+			GUI:PlayerMenu(from_widget)
 		end
 	end
 end

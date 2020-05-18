@@ -71,7 +71,7 @@ Constructor
 -------------------------------------------------------------------------------]]
 local function Constructor()
 	-- create a Label type that we will hijack
-	local label = AceGUI:Create("Label")
+	local label = AceGUI:Create("TritonBasicLabel")
 
 	local frame = label.frame
 	frame:EnableMouse(true)

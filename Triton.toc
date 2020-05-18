@@ -30,6 +30,7 @@ Locale\enUS.lua
 Locale\zhCN.lua
 
 Widgets\ListBox.lua
+Widgets\TritonBasicLabel.lua
 Widgets\TritonLabel.lua
 Widgets\TritonFrame.lua
 Widgets\TritonScrollFrame.lua
