@@ -18,6 +18,7 @@ Simple and clear.
 - Using & as 'and' operator
 - Using - as 'not' operator
 - Special class keywords: class:warlock = warlock, class:mage = mage, etc
+- Message, sender's name and class can be used in search
 
 ##### Examples
 
@@ -68,6 +69,7 @@ Triton@匕首岭, 2020
 - 用&连接多个要包含的关键字
 - 将-放在关键字前表示滤掉含有此关键字的消息
 - 支持特殊的职业关键字，如：class:warlock = 术士, class:mage = 法师, 等等
+- 消息本身、玩家名字和职业可用于关键字搜索中
 
 ##### 范例
 
