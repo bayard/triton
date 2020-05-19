@@ -272,7 +272,7 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 		local dispMsg = "|cff00cc00" .. topics[key]["keyword"] .. 
 			" |cffca99ff[" ..playerStr .. 
 			"|cffca99ff] |cff00cccc" .. topics[key]["msg"] ..  
-			" |cffcccc00" .. tostring(secs) .. "s";
+			" |cff999900" .. tostring(secs) .. "s";
 		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		--self.lines[widgetIdx]["msgLine"]:Show()
 

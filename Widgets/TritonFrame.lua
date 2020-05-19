@@ -45,6 +45,12 @@ local function Frame_OnMouseDown(frame)
 	AceGUI:ClearFocus()
 end
 
+local function Frame_OnEnter(frame)
+end
+
+local function Frame_OnLeave(frame)
+end
+
 local function Title_OnMouseDown(frame)
 	frame:GetParent():StartMoving()
 	AceGUI:ClearFocus()
@@ -218,7 +224,10 @@ local function Constructor()
 	frame:SetScript("OnShow", Frame_OnShow)
 	frame:SetScript("OnHide", Frame_OnClose)
 	frame:SetScript("OnMouseDown", Frame_OnMouseDown)
-
+	--[[
+	frame:SetScript("OnEnter", Frame_OnEnter)
+	frame:SetScript("OnLeave", Frame_OnLeave)
+	]]
 	--local closebutton = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	local closebutton = CreateFrame("Button", nil, frame)
 	closebutton:SetSize(11, 11)

@@ -36,7 +36,7 @@ L["|cffff9900Cancel"] = true
 
 L["ADDON_INFO"] = '|cffca99ffTriton|r organize messages into topics for you to track events of LFG, gold raid and others you may interested.'
 
-L["AUTHOR_INFO"] = 'Hint: When entering keywords, using comma (|cff00cccc.|r) to seperate keywords. |cff00cccc&|r can be used as "|cff00ccccand|r" operator, |cff00cccc-|r can be used a "|cff00ccccnot|r" operator. Special class keyword：|cff00ccccclass:warlock|r refer to warlock, etc. Case ignored.\n\n' .. 
+L["AUTHOR_INFO"] = 'Hint: When entering keywords, using comma (|cff00cccc.|r) to seperate keywords. |cff00cccc&|r can be used as "|cff00ccccand|r" operator, |cff00cccc-|r can be used a "|cff00ccccnot|r" operator. Special class keyword：|cff00ccccclass:warlock|r refer to warlock, etc. Sender name can be used in search and case ignored.\n\n' .. 
 'For Example:\n' .. 
 'OYN&LFG: must include |cff00ccccOYN|r and |cff00ccccLFG|r.\n' ..
 'OYN-Bad-fxxk: must include |cff00ccccOYN|r but none of |cff00ccccBad|r or |cff00ccccfxxk|r.\n' ..
