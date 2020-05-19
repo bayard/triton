@@ -29,6 +29,9 @@ L["enter /triton for main interface"] = "输入 /triton 打开 Triton 开始跟�
 
 L["Choose operation: |cff00cccc"] = "选择操作：|cff00cccc"
 L["Block user"] = "屏蔽此用户"
+L["Add friend"] = "加为好友"
+L["Copy user name"] = "复制用户名"
+L["User details"] = "查看用户详情"
 L["Whisper"] = "发私信"
 L["|cffff9900Cancel"] = "|cffff9900取消"
 

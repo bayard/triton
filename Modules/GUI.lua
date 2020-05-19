@@ -117,34 +117,43 @@ function GUI:testmsg()
 
 	local lines = {}
 
-	self.scroll:PauseLayout()
-
 	for i = 1, newlines do
 
-		local msgLine = AceGUI:Create("TritonBasicLabel")
+		local msgLine = AceGUI:Create("TritonEntry")
 		--msgLine:SetRelativeWidth(0.93)
-		msgLine:SetPoint("LEFT", 0, 0)
-		msgLine:SetRelativeWidth(1)
 		msgLine:SetHeight(addon.db.global.fontsize)
-		msgLine:SetText(tostring(i))
-		msgLine:SetFont(fontName, addon.db.global.fontsize)
-		--msgLine:SetFont(fontName, addon.db.global.fontsize, "THICKOUTLINE")
-		--msgLine:SetFont("Interface\\Addons\\Triton\\Media\\Emblem.ttf", addon.db.global.fontsize)
-		msgLine:SetCallback("OnEnter", ShowLabelTooltip)
-		msgLine:SetCallback("OnClick", ClickLabel)
+		msgLine:SetWidth(200)
+		msgLine.label:SetWidth(200)
+		msgLine.label:SetHeight(addon.db.global.fontsize)
+		msgLine:SetPoint("LEFT", 0, 0)
+		--msgLine:SetPoint("LEFT", self.scroll)
+		--msgLine:SetFont(fontName, addon.db.global.fontsize)
+		--msgLine:SetText("item:16846:0:0:0:0:0:0:0" .. " click")
+
+		-- setup events
+		-- msgLine:SetCallback("OnEnter", ShowLabelTooltip)
+		--msgLine:SetCallback("OnClick", ClickLabel)
+		msgLine.label:SetScript("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
+		msgLine.label:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
+		--msgLine.frame:SetScript("OnHyperlinkEnter", function() end)
+		--msgLine.frame:SetScript("OnHyperlinkClick", function() end)
+
+
+		msgLine:SetText(tostring(i) .. "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r")
 
 		lines[i] = msgLine
 	end
 
 	for i = 1, newlines do
 		self.scroll:AddChild(lines[i])
-		--self.scroll:DoLayout()
+		self.scroll:DoLayout()
 	end
 
+	--[[
 	for i = 30,40 do
 		--lines[i]:SetText(tostring(i) .. ' released')
 		lines[i]:SetText("")
-		lines[i]:Hide()
+		--lines[i]:Hide()
 		--AceGUI:Release(lines[i])
 		--self.scroll:DoLayout()
 	end
@@ -152,28 +161,20 @@ function GUI:testmsg()
 	for i = 5,10 do
 		--lines[i]:SetText(tostring(i) .. ' released')
 		lines[i]:SetText(nil)
-		lines[i]:Hide()
+		--lines[i]:Hide()
 		--AceGUI:Release(lines[i])
 		--self.scroll:DoLayout()
 	end
 
 	
 	--self.scroll:DoLayout()
+	]]
 
-	----[[
+	--[[
 	for i = 51, 55 do
 
-		local msgLine = AceGUI:Create("TritonBasicLabel")
-		--msgLine:SetRelativeWidth(0.93)
-		msgLine:SetPoint("LEFT", 0, 0)
-		msgLine:SetRelativeWidth(1)
-		msgLine:SetHeight(addon.db.global.fontsize)
-		msgLine:SetText(tostring(i))
-		msgLine:SetFont(fontName, addon.db.global.fontsize)
-		--msgLine:SetFont(fontName, addon.db.global.fontsize, "THICKOUTLINE")
-		--msgLine:SetFont("Interface\\Addons\\Triton\\Media\\Emblem.ttf", addon.db.global.fontsize)
-		msgLine:SetCallback("OnEnter", ShowLabelTooltip)
-		msgLine:SetCallback("OnClick", ClickLabel)
+		local msgLine = GUI:CreateNewLineWidget(topics)
+		msgLine:SetText(tostring(i) .. "|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r")
 
 		lines[i] = msgLine
 	end
@@ -181,11 +182,36 @@ function GUI:testmsg()
 	for i = 51, 55 do
 		self.scroll:AddChild(lines[i])
 	end
-	--]]
+	]]
 
-	self.scroll:ResumeLayout()
 	self.scroll:DoLayout()
 
+end
+
+function GUI:CreateNewLineWidgetWithTritonEntry(topics)
+		--local msgLine = AceGUI:Create("TritonLabel")
+		local msgLine = AceGUI:Create("TritonEntry")
+		--msgLine:SetRelativeWidth(0.93)
+		msgLine:SetRelativeWidth(1)
+
+		msgLine:SetWidth(200)
+		msgLine.label:SetWidth(200)
+		msgLine.label:SetHeight(addon.db.global.fontsize)
+
+		msgLine:SetHeight(addon.db.global.fontsize)
+		msgLine:SetPoint("LEFT", 0, 0)
+		msgLine:SetFont(fontName, addon.db.global.fontsize)
+		--msgLine:SetFont(fontName, addon.db.global.fontsize, "THICKOUTLINE")
+		--msgLine:SetFont("Interface\\Addons\\Triton\\Media\\Emblem.ttf", addon.db.global.fontsize)
+
+		-- setup events
+		-- msgLine:SetCallback("OnEnter", ShowLabelTooltip)
+		msgLine:SetCallback("OnClick", ClickLabel)
+		
+		msgLine.label:SetScript("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
+		msgLine.label:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
+
+		return msgLine
 end
 
 function GUI:CreateNewLineWidget(topics)
@@ -201,6 +227,14 @@ function GUI:CreateNewLineWidget(topics)
 		msgLine:SetCallback("OnClick", ClickLabel)
 
 		return msgLine
+end
+
+function OnHyperlinkEnter()
+	addon:Printf("OnHyperlinkEnter");
+end
+
+function OnHyperlinkClick()
+	addon:Printf("OnHyperlinkClick");
 end
 
 function GUI:AdjustLines(topics)
@@ -272,7 +306,8 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 		local dispMsg = "|cff00cc00" .. topics[key]["keyword"] .. 
 			" |cffca99ff[" ..playerStr .. 
 			"|cffca99ff] |cff00cccc" .. topics[key]["msg"] ..  
-			" |cff999900" .. tostring(secs) .. "s";
+			" |cff008800" .. tostring(secs) .. "s";
+		--self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		--self.lines[widgetIdx]["msgLine"]:Show()
 
@@ -311,35 +346,6 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 	self.scroll:DoLayout()
 end
 
-function GUI:RefreshTopicsNormal(topics)
-	self:AdjustLines(topics)
-
-	local widgetIdx = 1
-	local curTime = GetTime()
-
-	for key, topic in pairs(topics) do
-		-- addon:Printf("RefreshTopics: " .. topics[key]["msg"])
-		local secs = curTime - topic["time"]
-		secs = math.floor(secs)
-
-		local playerStr = ""
-        local ccolor = RAID_CLASS_COLORS[topic["class"]].colorStr
-        playerStr = "|c" .. ccolor .. topic["nameonly"]
-
-        -- tostring(widgetIdx) .. " " .. 
-		local dispMsg = "|cff00cc00" .. topic["keyword"] .. 
-			" |cff7020d0[" ..playerStr .. 
-			"|cff7020d0] |cff00cccc" .. topic["msg"] ..  
-			" |cffcccc00[" .. tostring(secs) .. "s]";
-		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
-		self.lines[widgetIdx]["topic"] = topic
-		widgetIdx = widgetIdx + 1
-	end
-
-	-- refresh scroll frame
-	self.scroll:DoLayout()
-end
-
 function GUI:RefreshTopics(topics)
 	--self:RefreshTopicsNormal(topics)
 
@@ -365,6 +371,18 @@ end
 
 function ShowLabelTooltip(from_widget)
 	--GUI:ShowTooltip(from_widget)
+	local infoType, info1, info2 = GetCursorInfo()
+	print("infoType=" .. tostring(infoType))
+	GameTooltip:SetHyperlink("item:16846:0:0:0:0:0:0:0")
+	if (infoType == "item") then
+		print(info2)
+	elseif (infoType == "spell") then
+		local name, rank = GetSpellName(info1, info2)
+	  	if (rank ~= "") then
+	    	name = name .. "(" .. rank .. ")"
+	  	end
+	  	print(name)
+	end
 end
 
 function GUI:WhisperPlayer(from_widget)
@@ -389,9 +407,24 @@ function GUI:PlayerMenu(from_widget)
 		return
 	end
 
+	local function CopyUserName(fullname)
+		editBox = ChatEdit_ChooseBoxForSend()
+        local hasText = (editBox:GetText() ~= "")
+        ChatEdit_ActivateChat(editBox)
+        editBox:Insert(fullname)
+        if (not hasText) then editBox:HighlightText() end
+	end
+
+	local function UserDetails(fullname)
+		C_FriendList.SendWho("n-"..fullname)
+	end
+
 	local menu = {
 	    { text = L["Choose operation: |cff00cccc"] .. topic["nameonly"] , isTitle = true},
 	    { text = L["Block user"], func = function() C_FriendList.AddIgnore(topic["from"]); print(topic["nameonly"] .. L[" had been ignored."]); end },
+	    { text = L["Add friend"], func = function() C_FriendList.AddFriend(topic["from"]); end },
+	    { text = L["Copy user name"], func = function() CopyUserName(topic["from"]); end },
+	    { text = L["User details"], func = function() UserDetails(topic["nameonly"]); end },
 	    { text = L["Whisper"], func = function() ChatFrame_SendTell(topic["from"]); end },
 	    { text = L["|cffff9900Cancel"], func = function() return; end },
 	}
@@ -442,136 +475,7 @@ function ClickLabel(from_widget)
 end
 
 ------------------------------------------------------------------------------
--- unused functions
-------------------------------------------------------------------------------
-
-function GUI:AdjustLinesOri(topics)
-		local tsize = table_count(topics)
-	local lsize = table_count(self.lines)
-	local newlines = tsize - lsize
-	addon:Printf("newlines: " .. tostring(tsize) .. "-" .. tostring(lsize) .. "=" .. tostring(newlines))
-
-	-- Add widgets to contain new lines
-	if(newlines>=0) then
-		for i = 1, newlines do
-			--[[
-			local linecontainer = AceGUI:Create("SimpleGroup") 
-			linecontainer:SetFullWidth(true)
-			linecontainer:SetLayout("Flow")
-			]]
-
-			local msgLine = AceGUI:Create("TritonLabel")
-			--msgLine:SetRelativeWidth(0.93)
-			msgLine:SetRelativeWidth(1)
-			msgLine:SetHeight(addon.db.global.fontsize)
-			msgLine:SetPoint("LEFT", 0, 0)
-			msgLine:SetFont(fontName, addon.db.global.fontsize)
-			--msgLine:SetFont(fontName, addon.db.global.fontsize, "THICKOUTLINE")
-			--msgLine:SetFont("Interface\\Addons\\Triton\\Media\\Emblem.ttf", addon.db.global.fontsize)
-			msgLine:SetCallback("OnEnter", ShowLabelTooltip)
-			msgLine:SetCallback("OnClick", ClickLabel)
-
-			--[[
-			linecontainer:AddChild(msgLine)
-			-- add line widget to scroll frame
-			self.scroll:AddChild(linecontainer)
-			]]
-
-			self.scroll:AddChild(msgLine)
-
-			-- apppend widgets in lines table
-			line_widgets = {}
-			-- line_widgets["linecontainer"] = linecontainer
-			line_widgets["msgLine"] = msgLine
-			table.insert(self.lines, line_widgets)
-		end
-	-- Remember to hide tailing empty lines 
-	else
-		for i = lsize, lsize+newlines+1, -1 do
-			-- important:
-			-- ace3gui have bug, remove label widget cause UI issue
-			-- proven fix:
-			-- 1. using modified version of TritonBasicLabel and TritonLabel
-			-- 2. set target widget text to nil
-			-- 3. set target widge height and width to 0,0 via modified version of UpdateImageAnchor
-			-- 4. Release the line
-			self.lines[i]["msgLine"]:SetText(nil)
-			self.lines[i]["msgLine"]:Hide()
-			--AceGUI:Release(self.lines[i]["msgLine"])
-
-			-- set released line object to nil
-			--self.lines[i] = nil
-		end
-	end
-
-	self.scroll:DoLayout()
-
-end
-
-function GUI:RefreshTopicsSortedOri(topics, sort_field)
-	self:AdjustLines(topics)
-
-	local widgetIdx = 1
-	local curTime = GetTime()
-
-	function tcompare(a, b)
-		return a[sort_field]>b[sort_field]
-	end
-
-	local sortedKeys = getKeysSortedByValue(topics, tcompare)
-
-	for _, key in ipairs(sortedKeys) do
-		-- addon:Printf("RefreshTopics: " .. topics[key]["msg"])
-		local secs = curTime - topics[key]["time"]
-		secs = math.floor(secs)
-
-		local playerStr = ""
-        local ccolor = RAID_CLASS_COLORS[topics[key]["class"]].colorStr
-        playerStr = "|c" .. ccolor .. topics[key]["nameonly"]
-
-        -- tostring(widgetIdx) .. " " ..
-		local dispMsg = "|cff00cc00" .. topics[key]["keyword"] .. 
-			" |cffca99ff[" ..playerStr .. 
-			"|cffca99ff] |cff00cccc" .. topics[key]["msg"] ..  
-			" |cffcccc00" .. tostring(secs) .. "s";
-		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
-		self.lines[widgetIdx]["msgLine"]:Show()
-
-		-- if new update on old message
-		if( not topics[key]['animated'] ) then
-			-- create animation
-			--addon:Printf("do alpha animation")
-			f = self.lines[widgetIdx]["msgLine"].frame
-			flasher = f:CreateAnimationGroup() 
-
-			fade1 = flasher:CreateAnimation("Alpha")
-			fade1:SetDuration(0.1)
-			fade1:SetFromAlpha(1)
-			fade1:SetToAlpha(0.5)
-			fade1:SetOrder(1)
-
-			fade2 = flasher:CreateAnimation("Alpha")
-			fade2:SetDuration(0.26)
-			fade2:SetFromAlpha(0.5)
-			fade2:SetToAlpha(1)
-			fade2:SetOrder(2)
-
-			flasher:Play()
-
-			topics[key]["animated"] = true
-		end
-
-		-- save current top in widget line's container
-		self.lines[widgetIdx]["topic"] = topics[key]
-
-		-- increase index to access next widget line
-		widgetIdx = widgetIdx + 1
-	end
-
-	-- refresh scroll frame
-	self.scroll:DoLayout()
-end
-
+-- unused
 function GUI:AdjustLinesByRecreate(topics)
 	local tsize = table_count(topics)
 	local lsize = table_count(self.lines)

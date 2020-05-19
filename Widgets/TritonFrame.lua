@@ -42,7 +42,18 @@ local function Frame_OnClose(frame)
 end
 
 local function Frame_OnMouseDown(frame)
+	frame:StartMoving()
 	AceGUI:ClearFocus()
+end
+
+local function Frame_OnMouseUp(frame)
+	frame:StopMovingOrSizing()
+	local self = frame.obj
+	local status = self.status or self.localstatus
+	status.width = frame:GetWidth()
+	status.height = frame:GetHeight()
+	status.top = frame:GetTop()
+	status.left = frame:GetLeft()
 end
 
 local function Frame_OnEnter(frame)
@@ -210,6 +221,9 @@ local PaneBackdrop  = {
 }
 
 local function Constructor()
+	local minWidth = 180
+	local minHeight = 80
+
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:Hide()
 
@@ -219,11 +233,14 @@ local function Constructor()
 	frame:SetFrameStrata("BACKGROUND")
 	frame:SetBackdrop(FrameBackdrop)
 	frame:SetBackdropColor(0, 0, 0, 0.36)
-	frame:SetMinResize(180, 80)
+	frame:SetMinResize(minWidth, minHeight)
 	--frame:SetToplevel(true)
 	frame:SetScript("OnShow", Frame_OnShow)
 	frame:SetScript("OnHide", Frame_OnClose)
+
 	frame:SetScript("OnMouseDown", Frame_OnMouseDown)
+	frame:SetScript("OnMouseUp", Frame_OnMouseUp)
+
 	--[[
 	frame:SetScript("OnEnter", Frame_OnEnter)
 	frame:SetScript("OnLeave", Frame_OnLeave)
@@ -322,17 +339,23 @@ local function Constructor()
 	--titlebg:SetTexture(131080) -- Interface\\DialogFrame\\UI-DialogBox-Header
 	titlebg:SetTexCoord(0.31, 0.67, 0, 0.63)
 	titlebg:SetPoint("TOP", 0, 12)
-	titlebg:SetWidth(150)
+	titlebg:SetWidth(minWidth)
 	titlebg:SetHeight(50)
 
 	local title = CreateFrame("Frame", nil, frame)
 	title:EnableMouse(true)
+	--title:SetBackdrop(FrameBackdrop)
+	--title:SetBackdropColor(0.6, 0, 0, 0.6)
 	title:SetScript("OnMouseDown", Title_OnMouseDown)
 	title:SetScript("OnMouseUp", MoverSizer_OnMouseUp)
 	title:SetAllPoints(titlebg)
 
 	local titletext = title:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	titletext:SetPoint("TOP", titlebg, "TOP", 0, -14)
+
+	title:SetHeight(titletext:GetStringHeight())
+	title:SetWidth(frame:GetWidth())
+
 
 	local sizer_se = CreateFrame("Frame", nil, frame)
 	sizer_se:SetPoint("BOTTOMRIGHT")
@@ -392,6 +415,7 @@ local function Constructor()
 	local widget = {
 		localstatus = {},
     	powerbutton = powerbutton,
+    	title 		= title,
 		titletext   = titletext,
 		statustext  = statustext,
 		titlebg     = titlebg,

@@ -93,6 +93,13 @@ end
 function addon:SwitchOn()
 	--addon:Printf(L["SwitchOn"])
 
+	if(addon.GUI.display) then
+		if(addon.GUI.display:IsShown()) then
+			-- do nothing
+				return
+		end
+	end 
+
 	addon.GUI:Load_Ace_Custom()
 	addon.GUI.display:Show()
 
@@ -101,11 +108,15 @@ end
 
 function addon:SwitchOff()
 	--addon:Printf(L["SwitchOff"])
-	addon.GUI.display:Hide()
-	AceGUI:Release(addon.GUI.display)
-	addon.GUI.display = nil
+	if(addon.GUI.display) then
+		if(addon.GUI.display:IsShown()) then
+			addon.GUI.display:Hide()
+			AceGUI:Release(addon.GUI.display)
+			addon.GUI.display = nil
 
-	TritonKeywordUI:UpdateKeywordUIState();
+			TritonKeywordUI:UpdateKeywordUIState();
+		end
+	end
 end
 
 function addon:UIToggle()

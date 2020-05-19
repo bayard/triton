@@ -31,6 +31,9 @@ L["enter /triton for main interface"] = true
 
 L["Choose operation: |cff00cccc"] = true
 L["Block user"] = true
+L["Add friend"] = true
+L["Copy user name"] = true
+L["User details"] = true
 L["Whisper"] = true
 L["|cffff9900Cancel"] = true
 
