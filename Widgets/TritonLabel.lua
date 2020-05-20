@@ -24,6 +24,10 @@ local function Label_OnClick(frame, button)
 	AceGUI:ClearFocus()
 end
 
+local function HyperLinkEnter(frame)
+	print("HyperLinkEnter TritonLabel")
+end
+
 --[[-----------------------------------------------------------------------------
 Methods
 -------------------------------------------------------------------------------]]
@@ -78,6 +82,9 @@ local function Constructor()
 	frame:SetScript("OnEnter", Control_OnEnter)
 	frame:SetScript("OnLeave", Control_OnLeave)
 	frame:SetScript("OnMouseDown", Label_OnClick)
+
+	--frame:SetHyperlinksEnabled()
+	--frame:SetScript("OnHyperlinkEnter", HyperLinkEnter)
 
 	local highlight = frame:CreateTexture(nil, "HIGHLIGHT")
 	highlight:SetTexture(nil)

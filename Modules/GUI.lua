@@ -76,7 +76,9 @@ function GUI:Load_Ace_Custom()
 	self.lines = {}
 
 	-- test insert lines
-	-- GUI:testmsg()
+	--GUI:testmsg()
+	--GUI:linktest();
+	--GUI:linktest_ace_html()
 
 	return GUI.display
 end
@@ -110,6 +112,38 @@ function GUI:UpdateAddonUIStatus(isactive)
   else
     GUI.display.titletext:SetTextColor(1, 0, 0, 1);
   end
+end
+
+function GUI:linktest_ace_html()
+	local msgLine = AceGUI:Create("TritonSimpleHTML")
+	msgLine:SetRelativeWidth(1)
+	msgLine:SetWidth(200)
+	msgLine:SetHeight(addon.db.global.fontsize)
+	msgLine:SetPoint("LEFT", 0, 0)
+	--msgLine:SetFont(fontName, addon.db.global.fontsize)
+	--msgLine:SetText("|cff9d9d9d|Hitem:7073::::::::::::|h[Broken Fang]|h|r")
+	msgLine:SetText("<html><body><h1>Heading1</h1><p>A paragraph</p></body></html>")
+	
+	--msgLine:SetCallback("OnClick", function() GameTooltip:SetHyperlink("item:16846:0:0:0:0:0:0:0"); end)
+	--msgLine:SetCallback("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
+
+	self.scroll:AddChild(msgLine)
+end
+
+function GUI:linktest()
+	local msgLine = AceGUI:Create("TritonEntry")
+	msgLine:SetRelativeWidth(1)
+	msgLine:SetWidth(200)
+	msgLine:SetHeight(addon.db.global.fontsize)
+	msgLine:SetPoint("LEFT", 0, 0)
+	msgLine:SetFont(fontName, addon.db.global.fontsize)
+	msgLine:SetText("|cff9d9d9d|Hitem:7073::::::::::::|h[Broken Fang]|h|r")
+	--msgLine:SetText("<html><body><h1>Heading1</h1><p>A paragraph</p></body></html>")
+	
+	--msgLine:SetCallback("OnClick", function() GameTooltip:SetHyperlink("item:16846:0:0:0:0:0:0:0"); end)
+	--msgLine:SetCallback("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
+
+	self.scroll:AddChild(msgLine)
 end
 
 function GUI:testmsg()
@@ -215,7 +249,8 @@ function GUI:CreateNewLineWidgetWithTritonEntry(topics)
 end
 
 function GUI:CreateNewLineWidget(topics)
-		local msgLine = AceGUI:Create("TritonLabel")
+		--local msgLine = AceGUI:Create("TritonLabel")
+		local msgLine = AceGUI:Create("TritonEntry")
 		--msgLine:SetRelativeWidth(0.93)
 		msgLine:SetRelativeWidth(1)
 		msgLine:SetHeight(addon.db.global.fontsize)
@@ -223,7 +258,7 @@ function GUI:CreateNewLineWidget(topics)
 		msgLine:SetFont(fontName, addon.db.global.fontsize)
 		--msgLine:SetFont(fontName, addon.db.global.fontsize, "THICKOUTLINE")
 		--msgLine:SetFont("Interface\\Addons\\Triton\\Media\\Emblem.ttf", addon.db.global.fontsize)
-		msgLine:SetCallback("OnEnter", ShowLabelTooltip)
+		-- msgLine:SetCallback("OnEnter", ShowLabelTooltip)
 		msgLine:SetCallback("OnClick", ClickLabel)
 
 		return msgLine
@@ -474,12 +509,20 @@ function ClickLabel(from_widget)
 	end
 end
 
+--------------------------------------------
+-- hyper link
+function MsgHyperLinkEnter()
+end
+
+function MsgHyperLinkLeave()
+end
+
 ------------------------------------------------------------------------------
 -- unused
 function GUI:AdjustLinesByRecreate(topics)
 	local tsize = table_count(topics)
 	local lsize = table_count(self.lines)
-	addon:Printf("topics size: " .. tostring(tsize) .. ", widgets size: " .. tostring(lsize))
+	--addon:Printf("topics size: " .. tostring(tsize) .. ", widgets size: " .. tostring(lsize))
 
 	self.scroll:ReleaseChildren()
 

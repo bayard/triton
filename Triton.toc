@@ -36,6 +36,7 @@ Widgets\TritonLabel.lua
 Widgets\TritonFrame.lua
 Widgets\TritonScrollFrame.lua
 Widgets\TritonEntry.lua
+Widgets\TritonSimpleHTML.lua
 
 Widgets\TritonGUI-3.0.lua
 
