@@ -471,7 +471,7 @@ function GUI:PlayerMenu(from_widget)
 	-- menuFrame:SetPoint("LEFT", from_widget.frame, "Center")
 	-- EasyMenu(menu, menuFrame, menuFrame, 0 , 0, "MENU");
 
-	addon:Printf('RightButton:')
+	--addon:Printf('RightButton:')
 
 end
 
