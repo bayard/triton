@@ -19,6 +19,7 @@ Simple and clear.
 - Using - as 'not' operator
 - Special class keywords: class:warlock = warlock, class:mage = mage, etc
 - Message, sender's name and class can be used in search
+- Blizzard item link keyword can be used in search.
 
 ##### Examples
 
@@ -26,6 +27,7 @@ Simple and clear.
 - -class:warlock&-summon: not accept messages contain 'summon' by warlock
 - bwl,mc,ony: accept messages contain one of the words of: bwl, mc and ony
 - bwl&lfg: accept messages with both bwl and lfg contained
+- Hitem: search item link in messages
 
 ##### Options
 
@@ -70,6 +72,7 @@ Triton@匕首岭, 2020
 - 将-放在关键字前表示滤掉含有此关键字的消息
 - 支持特殊的职业关键字，如：class:warlock = 术士, class:mage = 法师, 等等
 - 消息本身、玩家名字和职业可用于关键字搜索中
+- Blizzard 的消息内链接关键字可也用于搜索中
 
 ##### 范例
 
@@ -77,6 +80,7 @@ Triton@匕首岭, 2020
 - -class:warlock&-飞机：拒绝术士发的含有飞机的消息
 - bwl,mc,黑龙：接收含有bwl、mc、黑龙任意一个关键字的消息
 - bwl&金团：接收含有bwl及金团的消息
+- Hitem: 搜索含有物品链接的消息
 
 ##### 选项
 
