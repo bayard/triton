@@ -1,6 +1,6 @@
 ### Triton
 
-##### An WoW classic addon to organize messages into topics for you to track events of LFG, gold raid and others you may interested.
+##### Tracking only messages you want, must-have for LFG. Triton, a WoW classic addon organizes messages into topics for you to track events of LFG, gold raid and others you may interested.
 
 Chat messages in WoW were messy and spammed. Trying to find something you interested in fast scrolling chat message is challenging. 
 
@@ -53,7 +53,7 @@ Triton@匕首岭, 2020
 
 ### Triton
 
-##### 魔兽世界怀旧服的插件，将杂乱的聊天消息组织成清晰明了的主题，无论是关注金团还是寻找队伍等， 从此变得非常简单。
+##### Triton实时跟踪你要的消息，跟团必备。Triton是魔兽世界怀旧服的插件，将杂乱的聊天消息组织成清晰明了的主题，无论是关注金团还是寻找队伍等， 从此变得非常简单。
 
 聊天消息非常杂乱而且垃圾信息充斥，从这些消息中找到有用的信息吃力又伤眼。
 

@@ -106,12 +106,16 @@ function GUI:CreateScrollContainer()
 end
 
 function GUI:UpdateAddonUIStatus(isactive)
-  GUI.display:OnPowerButtonStatus(isactive)
-  if isactive then
-    GUI.display.titletext:SetTextColor(1, 0.82, 0, 1);
-  else
-    GUI.display.titletext:SetTextColor(1, 0, 0, 1);
-  end
+	if GUI.display == nil then
+		return
+	end
+	
+	GUI.display:OnPowerButtonStatus(isactive)
+	if isactive then
+		GUI.display.titletext:SetTextColor(1, 0.82, 0, 1);
+	else
+		GUI.display.titletext:SetTextColor(1, 0, 0, 1);
+	end
 end
 
 function GUI:linktest_ace_html()

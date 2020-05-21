@@ -111,7 +111,7 @@ function addon:SwitchOff()
 	if(addon.GUI.display) then
 		if(addon.GUI.display:IsShown()) then
 			addon.GUI.display:Hide()
-			AceGUI:Release(addon.GUI.display)
+			--AceGUI:Release(addon.GUI.display)
 			addon.GUI.display = nil
 
 			TritonKeywordUI:UpdateKeywordUIState();

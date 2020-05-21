@@ -35,7 +35,7 @@ L["User details"] = "查看用户详情"
 L["Whisper"] = "发私信"
 L["|cffff9900Cancel"] = "|cffff9900取消"
 
-L["ADDON_INFO"] = '|cffca99ffTriton|r 将杂乱的聊天消息组织成清晰明了的主题，无论是关注金团还是寻找队伍等， 从此变得非常简单。'
+L["ADDON_INFO"] = '|cffca99ffTriton|r 实时跟踪你关注的消息，跟团必备。Triton将杂乱的聊天消息组织成清晰明了的主题，无论是关注金团还是寻找队伍等， 从此变得非常简单。'
 
 L["AUTHOR_INFO"] = '提示：当输入关键字，可用逗号隔开多个关键字。|cff00cccc&|r符号表示|cff00cccc与|r，|cff00cccc-|r符号表示|cff00cccc非|r。搜索包括消息、职业及玩家名字，大小写忽略。特殊职业关键字，如：|cff00ccccclass:warlock|r表示术士。\n\n' .. 
 '举例：\n' .. 
