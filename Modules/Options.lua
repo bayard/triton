@@ -14,6 +14,7 @@ Options.defaults = {
 		max_topic_live_secs = 120,
 		refresh_interval = 2,
 		fontsize = 12.8,
+		minimap = {},
 		ui = {
 			height = 160,
 			top = 260,
