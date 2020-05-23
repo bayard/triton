@@ -12,7 +12,7 @@ local handlers = {}
 local searchcache = {}
 searchcache.blocker = {}
 
-local serverName  = Proper(GetRealmName())
+local serverName  = GetRealmName()
 
 -- get sorted keys
 function getKeysSortedByValue(tbl, sortFunction)
@@ -113,9 +113,9 @@ function removeServer (name, strict)
     end
     
     if index ~= nil then
-        local server = Proper(string.sub(name, index + 1, string.len(name)));
+        local server = string.sub(name, index + 1, string.len(name));
         
-        if strict == true or server == Proper(serverName) then
+        if strict == true or server == serverName then
             result = string.sub(name, 1, index - 1)
         end
     end
@@ -370,7 +370,7 @@ function TritonMessage:UnhookMessages()
         }
     )
 
-    addon:Printf("TritonMessage:UnhookMessages()")
+    --addon:Printf("TritonMessage:UnhookMessages()")
     addon.frame:UnregisterEvent("CHAT_MSG_CHANNEL");
 
     self.hooked = false

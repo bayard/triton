@@ -1,6 +1,6 @@
 ### Triton
 
-##### Tracking only messages you want, must-have for LFG. Triton, a WoW classic addon organizes messages into topics for you to track events of LFG, gold raid and others you may interested.
+##### Track only messages you care, must-have for LFG. Triton, a WoW classic addon organizes messages into topics for you to track events of LFG, gold raid and others you may interested.
 
 Chat messages in WoW were messy and spammed. Trying to find something you interested in fast scrolling chat message is challenging. 
 
@@ -45,6 +45,10 @@ Simple and clear.
 
 Thanks to authors of Global Ignore List, CChatNotifier and an unknown author who revised CChatNotifier to support and/or operators. 
 
+##### How to use:
+
+Click the minimap Tricon icon or using slash command /triton to open the message window.
+
 ##### Author
 
 Triton@匕首岭, 2020
@@ -53,7 +57,7 @@ Triton@匕首岭, 2020
 
 ### Triton
 
-##### Triton实时跟踪你要的消息，跟团必备。Triton是魔兽世界怀旧服的插件，将杂乱的聊天消息组织成清晰明了的主题，无论是关注金团还是寻找队伍等， 从此变得非常简单。
+##### Triton-跟团助手。将杂乱的聊天消息组织成清晰明了的主题，便于跟团，关注活动等等，只跟踪你关注的信息。
 
 聊天消息非常杂乱而且垃圾信息充斥，从这些消息中找到有用的信息吃力又伤眼。
 
@@ -97,6 +101,10 @@ Triton@匕首岭, 2020
 ##### 致谢
 
 感谢 Global Ignore List, CChatNotifier 和一位不知名的 CChatNotifier 修改版的作者。 
+
+##### 如何使用
+
+点击Minimap的图标或者使用 /triton 命令即可打开消息窗口
 
 ##### 作者
 
