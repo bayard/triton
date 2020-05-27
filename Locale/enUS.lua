@@ -37,6 +37,10 @@ L["User details"] = true
 L["Whisper"] = true
 L["|cffff9900Cancel"] = true
 
+L["User spam score"] = true
+L["'s spam score is "] = true
+L["Please install Acamar auto-learning spam filtering addon to obtain user's spam score."] = true
+
 L["ADDON_INFO"] = '|cffca99ffTriton|r, tracking only messages you care, a must-have for LFG. organize messages into topics for you to track events of LFG, gold raid and others you may interested.'
 
 L["AUTHOR_INFO"] = 'Hint: When entering keywords, using comma (|cff00cccc.|r) to seperate keywords. |cff00cccc&|r can be used as "|cff00ccccand|r" operator, |cff00cccc-|r can be used a "|cff00ccccnot|r" operator. Special class keyword：|cff00ccccclass:warlock|r refer to warlock, etc. Sender name can be used in search and case ignored.\n\n' .. 

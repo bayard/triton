@@ -35,6 +35,10 @@ L["User details"] = "查看用户详情"
 L["Whisper"] = "发私信"
 L["|cffff9900Cancel"] = "|cffff9900取消"
 
+L["User spam score"] = "玩家垃圾消息评分"
+L["'s spam score is "] = "的垃圾消息评分为"
+L["Please install Acamar auto-learning spam filtering addon to obtain user's spam score."] = "请安装Acamar自学习垃圾消息过滤插件查看玩家的评分。"
+
 L["ADDON_INFO"] = '|cffca99ffTriton|r - 跟团助手。将杂乱的聊天消息组织成清晰明了的主题，便于跟团，关注活动等等，只跟踪你关注的信息。'
 
 L["AUTHOR_INFO"] = '提示：当输入关键字，可用逗号隔开多个关键字。|cff00cccc&|r符号表示|cff00cccc与|r，|cff00cccc-|r符号表示|cff00cccc非|r。搜索包括消息、职业及玩家名字，大小写忽略。特殊职业关键字，如：|cff00ccccclass:warlock|r表示术士。\n\n' .. 

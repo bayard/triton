@@ -543,6 +543,8 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         topic["keyword"] = keyword
         topic["class"] = engClass
         topic["animated"] = false
+        topic["guid"] = guid
+        
         self.topics[topic_idx] = topic
 
     -- new topic
@@ -559,6 +561,7 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         topic["keyword"] = keyword
         topic["class"] = engClass
         topic["animated"] = false
+        topic["guid"] = guid
 
         -- print(table_to_string(topic))
         

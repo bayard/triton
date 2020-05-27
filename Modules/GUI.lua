@@ -458,12 +458,23 @@ function GUI:PlayerMenu(from_widget)
 		C_FriendList.SendWho("n-"..fullname)
 	end
 
+	local function UserSpamScore(fullname, guid)
+	    local tritonapi = _G["AcamarAPIHelper"]
+	    if tritonapi ~= nil then
+	        local blocked, spamscore = tritonapi:IsBlock(guid)
+	        addon:Printf(fullname .. L["'s spam score is "] .. spamscore)
+	    else
+	    	addon:Printf(L["Please install Acamar auto-learning spam filtering addon to obtain user's spam score."])
+	    end
+	end
+
 	local menu = {
 	    { text = L["Choose operation: |cff00cccc"] .. topic["nameonly"] , isTitle = true},
 	    { text = L["Block user"], func = function() C_FriendList.AddIgnore(topic["from"]); print(topic["nameonly"] .. L[" had been ignored."]); end },
 	    { text = L["Add friend"], func = function() C_FriendList.AddFriend(topic["from"]); end },
 	    { text = L["Copy user name"], func = function() CopyUserName(topic["from"]); end },
 	    { text = L["User details"], func = function() UserDetails(topic["nameonly"]); end },
+	    { text = L["User spam score"], func = function() UserSpamScore(topic["from"], topic["guid"]); end },
 	    { text = L["Whisper"], func = function() ChatFrame_SendTell(topic["from"]); end },
 	    { text = L["|cffff9900Cancel"], func = function() return; end },
 	}
