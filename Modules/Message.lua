@@ -414,6 +414,18 @@ function TritonMessage:SearchMessage(msg, from, source, guid)
         return;
     end
 
+    -- Skipped from if IsBlock return true in Acamar's API
+    local tritonapi = _G["AcamarAPIHelper"]
+    --addon:Printf("Triton addon=" .. tostring(tritonapi))
+    if tritonapi ~= nil then
+        local blocked, spamscore = tritonapi:IsBlock(guid)
+        --addon:Printf("block=" .. tostring(blocked) .. " (" .. spamscore .. ") user:" .. from)
+        -- if blocked by Acamar spam engine, skip the message
+        if blocked then
+            return
+        end
+    end
+
     local nameNoDash = RemoveServerDash(from);
 
     -- get player info
