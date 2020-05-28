@@ -461,7 +461,7 @@ function GUI:PlayerMenu(from_widget)
 	local function UserSpamScore(fullname, guid)
 	    local tritonapi = _G["AcamarAPIHelper"]
 	    if tritonapi ~= nil then
-	        local blocked, spamscore = tritonapi:IsBlock(guid)
+	        local spamscore = tritonapi:SpamScore(guid)
 	        addon:Printf(fullname .. L["'s spam score is "] .. spamscore)
 	    else
 	    	addon:Printf(L["Please install Acamar auto-learning spam filtering addon to obtain user's spam score."])
