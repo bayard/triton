@@ -72,19 +72,14 @@ function addon:OnEnable()
 	addon.Options:Load()
 
   	-- load keyword data
-  	addon:MainUI_UpdateList();
+  	self:MainUI_UpdateList();
 
 	-- Load last saved status
 	if( addon.db.global.ui_switch_on ) then
 		addon:SwitchOn()
 	end
-
-	-- print info on loaded session data
-	--addon.GUI:ShowInfo()
-
-	-- enable processing of loot events
-	--addon.Data:RegisterLootEvents()
 end
+
 
 function addon:OptionClicked()
 	--addon:Printf(L["Option clicked"])
