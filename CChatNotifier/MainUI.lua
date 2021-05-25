@@ -127,7 +127,7 @@ end
 -- @param height (optional)
 -- @param isMultiline (optional)
 local function MakeEditBox(parent, maxLen, height, isMultiline)
-    local edit = CreateFrame("EditBox", nil, parent);
+    local edit = CreateFrame("EditBox", nil, parent, BackdropTemplateMixin and "BackdropTemplate");
     edit:SetMaxLetters(maxLen);
     edit:SetAutoFocus(false);
     if height then
@@ -247,7 +247,7 @@ local function RemoveItem(self)
 end
 
 for i = 1, MAX_ITEMS, 1 do	
-    local item = CreateFrame("Button", nil, frame.scrollFrame);
+    local item = CreateFrame("Button", nil, frame.scrollFrame, BackdropTemplateMixin and "BackdropTemplate");
     
 	item:SetHeight(LIST_ITEM_HEIGHT);
     item:SetPoint("TOPLEFT", 0, -LIST_ITEM_HEIGHT * (i-1));

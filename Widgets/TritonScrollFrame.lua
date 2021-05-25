@@ -112,10 +112,10 @@ local methods = {
 				self.scrollBarShown = true
 				
 				self.scrollbar:Show()
-				self.scrollframe:SetPoint("BOTTOMRIGHT", -20, 0)
+				--self.scrollframe:SetPoint("BOTTOMRIGHT", -20, 0)
 				--fix triton: make scrollbar invisible
-				--self.scrollbar:Hide()
-				--self.scrollframe:SetPoint("BOTTOMRIGHT", 0, 0)
+				self.scrollbar:Hide()
+				self.scrollframe:SetPoint("BOTTOMRIGHT", 0, 0)
 
 				if self.content.original_width then
 					self.content.width = self.content.original_width - 20
@@ -187,7 +187,8 @@ local function Constructor()
 	scrollbar:SetValueStep(1)
 	scrollbar:SetValue(0)
 	scrollbar:SetWidth(16)
-	scrollbar:SetAlpha(0.5)
+	--scrollbar:SetAlpha(0.5)
+	scrollbar:SetAlpha(0)
 	scrollbar:Hide()
 	-- set the script as the last step, so it doesn't fire yet
 	scrollbar:SetScript("OnValueChanged", ScrollBar_OnScrollValueChanged)
