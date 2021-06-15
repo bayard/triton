@@ -176,6 +176,7 @@ local function _hfind(msglow, search)
 end
 
 local function ShouldBlock(msg)
+    --addon:Printf("msg:" .. msg)
     for _, data in pairs(addon.db.global.keywords) do
         if data.active then
             for word, search in pairs(data.words) do
@@ -435,7 +436,8 @@ function TritonMessage:SearchMessage(msg, from, source, guid)
         return
     end
 
-    local salted_msg = "<guid:" .. guid .. "><class:" .. engClass .. "><race:" .. engRace .. "><name:" .. name .. "><server:" .. getServer(from) .. ">" .. msg
+    --local salted_msg = "<guid:" .. guid .. "><class:" .. engClass .. "><race:" .. engRace .. "><name:" .. name .. "><server:" .. getServer(from) .. ">" .. msg
+    local salted_msg = "<guid:" .. guid .. "><class:" .. locClass .. "><race:" .. locRace .. "><name:" .. name .. "><server:" .. getServer(from) .. ">" .. msg
     salted_msg = salted_msg:lower()
 
     -- addon:Printf("addon.db.global.filters = " .. addon.db.global.filters.include.line1)
