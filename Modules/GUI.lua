@@ -269,11 +269,11 @@ function GUI:CreateNewLineWidget(topics)
 end
 
 function OnHyperlinkEnter()
-	addon:Printf("OnHyperlinkEnter");
+	--addon:Printf("OnHyperlinkEnter");
 end
 
 function OnHyperlinkClick()
-	addon:Printf("OnHyperlinkClick");
+	--addon:Printf("OnHyperlinkClick");
 end
 
 function GUI:AdjustLines(topics)

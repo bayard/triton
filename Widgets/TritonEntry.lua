@@ -36,7 +36,7 @@ end
 -- functions of events
 local function HyperLinkEnter(frame)
 	--print("HyperLinkEnter TritonEntry")
-	frame.obj:Fire("OnHyperlinkEnter")
+	--frame.obj:Fire("OnHyperlinkEnter")
 end
 
 --[[-----------------------------------------------------------------------------

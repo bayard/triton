@@ -176,13 +176,13 @@ local function _hfind(msglow, search)
 end
 
 local function ShouldBlock(msg)
-    --addon:Printf("msg:" .. msg)
     for _, data in pairs(addon.db.global.keywords) do
         if data.active then
             for word, search in pairs(data.words) do
                 if string.sub(search, 1, 1) == "-" and not string.find(search,"&") then
                     for k in string.gmatch(search, "-([^%-]+)") do
                         if string.find(msg, k) then 
+                            --addon:Printf("msg:" .. msg)
                             return true 
                         end
                     end                    
@@ -190,6 +190,7 @@ local function ShouldBlock(msg)
             end
         end
     end
+    --addon:Printf("msg:" .. msg)
     return false;
 end
 
