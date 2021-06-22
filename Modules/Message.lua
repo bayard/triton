@@ -14,6 +14,326 @@ searchcache.blocker = {}
 
 local serverName  = GetRealmName()
 
+if(addonName == nil) then
+	bit = bit32
+end
+
+-- Rewrite message
+local function RewriteMessage(ori)
+    if (ori == nil) then
+        return nil
+    end
+
+    local len = string.len(ori)
+
+    if len<2 then
+        return ori
+    end
+
+    --[[
+    haslink = find_link(ori)
+    -- skip message with item link
+    if(haslink) then
+        return
+    end    
+    ]]
+
+    local mmsg = nil
+
+    --[[
+    if((len>=4) and (len%2==0)) then
+        -- fast, the function only find dups of: ABCABCABC
+        -- output ABC
+        --mmsg = find_repeat_pattern_fast(ori)
+    end
+    ]]
+
+    -- fast and tuned algorithm, the function find dups of: xxABCABCABCyy
+    -- output xxABCyy
+    --mmsg = remove_dups(ori)
+
+    -- fastest and working better
+    mmsg = remove_dups_fast(ori)
+
+    if(mmsg == nil) then
+        return ori
+    end
+
+    -- second stage rewrite currently disabled because of in-consistency
+    --[[
+    if(mmsg == nil) then
+        mmsg = remove_char_repeats_fast(ori)
+        -- only keep modify string which can be rewrite to more than half of the length
+        if(mmsg ~= nil) then
+            if(string.len(mmsg) > len/2) then
+                mmsg = nil
+            end
+        end
+    end
+    ]]
+
+    return mmsg
+end
+
+-- merge dups sub funtions
+function remove_dups_fast(str, deep) 
+    local t = utf8_to_tbl_fast(str)
+    --print(table2string(t))
+    local prob = estimate_dup_probability(t)
+    --print("size=" .. #t .. ", prob=" .. prob)
+
+    local skip = false
+    if prob<0.33 then
+    	skip = true
+	elseif (#t>256 and prob<0.4) then
+		skip = true
+	elseif (#t>128 and prob<0.45) then
+		skip = true
+	elseif (#t>64 and prob<0.47) then
+		skip = true
+	elseif (#t>32 and prob<0.5) then
+		skip = true
+	end
+
+	-- skip very low probability of duplicates
+	if(skip) then
+		--print("Skip low probability")
+		return nil
+	end
+
+    local dflag = false
+    if deep ~= nil then 
+    	dflag = deep
+    else
+    	--print("deep not set, estimating...")
+		if (#t>256 and prob>0.7) then
+			dflag = true
+		elseif (#t>128 and prob>0.6) then
+			dflag = true
+		elseif (#t>64 and prob>0.55) then
+			dflag = true
+		elseif (#t>32 and prob>0.5) then
+			dflag = true
+		end
+    end
+    --print("size=" .. #t .. ", prob=" .. prob .. ", deepflag=" .. tostring(dflag))
+
+
+    local rt = remove_dups_tbl_fast(t, dflag)
+ 	return unicode_tbl_to_utf8_fast(rt)
+end
+
+function estimate_dup_probability(tbl)
+	local prob = 0.0
+	if tbl == nil then
+		return prob
+	end
+
+	local uc = {}
+	for k, v in pairs(tbl) do
+		if uc[v] ~= nil then
+			uc[v] = uc[v] + 1
+		else
+			uc[v] = 1
+		end
+	end
+
+	local counter = 0
+	for k, v in pairs(uc) do
+		counter = counter + 1
+		-- print( unicode_tbl_to_utf8_fast({k}), "=", v)
+	end
+
+	--print(counter, #tbl, 1-counter/#tbl)
+	return math.floor((1-counter/#tbl)*100)/100
+end
+
+-- utf8 to unicode table
+function utf8_to_tbl_fast(utf8str, start, stop)
+    assert(type(utf8str) == "string")
+
+    if start == nil then
+        start = 1
+    end    
+
+    if stop == nil then
+        stop = #utf8str
+    end
+
+    local res, seq, val = {}, 0, nil
+    for i = start, stop do
+        local c = string.byte(utf8str, i)
+        if seq == 0 then
+            table.insert(res, val)
+            seq = c < 0x80 and 1 or c < 0xE0 and 2 or c < 0xF0 and 3 or
+                  c < 0xF8 and 4 or --c < 0xFC and 5 or c < 0xFE and 6 or
+                  error("invalid UTF-8 character sequence")
+            val = bit.band(c, 2^(8-seq) - 1)
+        else
+            val = bit.bor(bit.lshift(val, 6), bit.band(c, 0x3F))
+        end
+        seq = seq - 1
+    end
+    table.insert(res, val)
+    return res
+end
+
+-- unicode table to utf8
+function unicode_tbl_to_utf8_fast(tbl, start, stop)
+	if tbl == nil then
+		return nil
+	end
+
+    if start == nil then
+        start = 1
+    end    
+
+    if stop == nil then
+        stop = #tbl
+    end
+
+    local rets=""
+    for i = start, stop do
+        local unicode = tbl[i]
+
+        if unicode <= 0x007f then
+            rets=rets..string.char(bit.band(unicode,0x7f))
+        elseif unicode >= 0x0080 and unicode <= 0x07ff then
+            rets=rets..string.char(bit.bor(0xc0,bit.band(bit.rshift(unicode,6),0x1f)))
+            rets=rets..string.char(bit.bor(0x80,bit.band(unicode,0x3f)))
+        elseif unicode >= 0x0800 and unicode <= 0xffff then
+            rets=rets..string.char(bit.bor(0xe0,bit.band(bit.rshift(unicode,12),0x0f)))
+            rets=rets..string.char(bit.bor(0x80,bit.band(bit.rshift(unicode,6),0x3f)))
+            rets=rets..string.char(bit.bor(0x80,bit.band(unicode,0x3f)))
+        end
+    end
+    --rets=rets..'\0'
+    return rets
+end
+
+-- if t[p1+i]==0xa0 or t[p1+i]==0x20 or t[p1+i]==0x3000
+function compare_tables_part_nospace_fast(t, p1, p2, size)
+	local ncounter = 0
+	local p1pos = 1
+	local p2pos = 1
+
+	local result = false
+
+	while(p1pos<=size) do
+		-- p1 not space
+		local c1 = t[p1+p1pos]
+		if c1~=0xa0 and c1~=0x20 and c1~=0x3000 then
+			local c2 = nil
+			local i
+
+			while(p2pos<=size) do
+				c2 = t[p2+p2pos]
+				if c2~=0xa0 and c2~=0x20 and c2~=0x3000 then
+					p2pos = p2pos + 1
+					break
+				end
+				p2pos = p2pos + 1
+			end
+
+			--print(c1, c2)
+
+			if c1 ~= c2 then 
+            	return false 
+            end
+
+        	 -- number
+	        if c1 >= 0x30 and c1 <= 0x39 then
+	        	ncounter = ncounter + 1
+	        end
+		end
+	    p1pos = p1pos + 1
+	end
+
+    -- ignore all number repeats
+    if ncounter == size then
+    	return false
+    end
+
+	for i=p2pos, size do
+		local extrac2 = t[p2+i]
+		--p2 has non-space chars
+		if extrac2~=0xa0 and extrac2~=0x20 and extrac2~=0x3000 then
+			return false
+		end
+	end
+
+	--print (size, p1pos, p2pos)
+	if p1pos  == size+1 then
+		result = true
+	end
+
+    return result
+end
+
+function remove_dups_tbl_fast(t, deep)
+	local i, k
+    -- offset, window_size
+    local off, w
+    -- length
+    local n = #t
+    -- half of length
+    local h = math.floor(n/2)
+
+    -- offset from 0 to n
+    for off=0, n do
+        local maxwin = h
+
+        -- calc max window size
+        if h>(n-off) then
+        	maxwin = n-off
+        end
+
+        -- window size from large to small
+        for w=maxwin, 3, -1 do
+	        local dups = 0
+            -- fist element index = 0
+            for k = 1, (n-off)/w-1 do
+	            --if compare_tables_part(t, dups*w+off, (dups+1)*w+off, w) then
+	            --print(unicode_tbl_to_utf8_fast(t, off+1, off+w) .. " vs " .. unicode_tbl_to_utf8_fast(t, k*w+off+1, k*w+off+w) )
+	            --if compare_tables_part_fast(t, off, k*w+off, w) then
+	            if compare_tables_part_nospace_fast(t, off, k*w+off, w) then
+	                dups = dups + 1
+	                --print("dups=", dups, "w=", w)
+	            else
+	            	break
+	            end
+            end
+
+            if(dups>0) then
+            	local rt = {}
+            	for i = 1, off+w do
+            		table.insert(rt, t[i])
+            	end
+
+				--print(unicode_tbl_to_utf8_fast(rt))
+
+            	for i = (dups+1)*w+off+1, n do
+            		table.insert(rt, t[i])
+            	end
+				--print(unicode_tbl_to_utf8_fast(rt))
+
+            	--ft = nil
+            	-- find dups again
+            	if deep then
+	            	ft = remove_dups_tbl_fast(rt, deep)
+	            	if ft ~= nil then
+	            		return ft
+	            	else
+	            		return rt
+	            	end
+            	else
+            		return rt
+            	end
+            end
+        end
+    end
+end
+
 -- get sorted keys
 function getKeysSortedByValue(tbl, sortFunction)
     local keys = {}
@@ -448,6 +768,11 @@ function TritonMessage:SearchMessage(msg, from, source, guid)
     local pass, keyword = self:FilterTopics(msg, salted_msg, from, source, guid)
 
     if pass then
+        -- merge dup substrings in msg
+        msg = RewriteMessage(msg)
+
+        --msg = source .. ":" .. msg
+
         -- build topics and do cleaner
         self:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
         -- Update topics once message received
@@ -598,3 +923,4 @@ function TritonMessage:UpdateTopicsUIFromTimer()
     addon.GUI:RefreshTopics(self.topics)
     self.lastRefresh = GetTime()
 end
+
