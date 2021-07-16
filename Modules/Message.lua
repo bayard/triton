@@ -2,6 +2,7 @@ local addonName, addon = ...
 
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local AceGUI = LibStub("AceGUI-3.0")
+local LibDeformat = LibStub("LibDeformat-3.0")
 
 local TritonMessage = addon:NewModule("TritonMessage", "AceEvent-3.0", "AceHook-3.0", "AceConsole-3.0")
 
@@ -13,326 +14,6 @@ local searchcache = {}
 searchcache.blocker = {}
 
 local serverName  = GetRealmName()
-
-if(addonName == nil) then
-	bit = bit32
-end
-
--- Rewrite message
-local function RewriteMessage(ori)
-    if (ori == nil) then
-        return nil
-    end
-
-    local len = string.len(ori)
-
-    if len<2 then
-        return ori
-    end
-
-    --[[
-    haslink = find_link(ori)
-    -- skip message with item link
-    if(haslink) then
-        return
-    end    
-    ]]
-
-    local mmsg = nil
-
-    --[[
-    if((len>=4) and (len%2==0)) then
-        -- fast, the function only find dups of: ABCABCABC
-        -- output ABC
-        --mmsg = find_repeat_pattern_fast(ori)
-    end
-    ]]
-
-    -- fast and tuned algorithm, the function find dups of: xxABCABCABCyy
-    -- output xxABCyy
-    --mmsg = remove_dups(ori)
-
-    -- fastest and working better
-    mmsg = remove_dups_fast(ori)
-
-    if(mmsg == nil) then
-        return ori
-    end
-
-    -- second stage rewrite currently disabled because of in-consistency
-    --[[
-    if(mmsg == nil) then
-        mmsg = remove_char_repeats_fast(ori)
-        -- only keep modify string which can be rewrite to more than half of the length
-        if(mmsg ~= nil) then
-            if(string.len(mmsg) > len/2) then
-                mmsg = nil
-            end
-        end
-    end
-    ]]
-
-    return mmsg
-end
-
--- merge dups sub funtions
-function remove_dups_fast(str, deep) 
-    local t = utf8_to_tbl_fast(str)
-    --print(table2string(t))
-    local prob = estimate_dup_probability(t)
-    --print("size=" .. #t .. ", prob=" .. prob)
-
-    local skip = false
-    if prob<0.33 then
-    	skip = true
-	elseif (#t>256 and prob<0.4) then
-		skip = true
-	elseif (#t>128 and prob<0.45) then
-		skip = true
-	elseif (#t>64 and prob<0.47) then
-		skip = true
-	elseif (#t>32 and prob<0.5) then
-		skip = true
-	end
-
-	-- skip very low probability of duplicates
-	if(skip) then
-		--print("Skip low probability")
-		return nil
-	end
-
-    local dflag = false
-    if deep ~= nil then 
-    	dflag = deep
-    else
-    	--print("deep not set, estimating...")
-		if (#t>256 and prob>0.7) then
-			dflag = true
-		elseif (#t>128 and prob>0.6) then
-			dflag = true
-		elseif (#t>64 and prob>0.55) then
-			dflag = true
-		elseif (#t>32 and prob>0.5) then
-			dflag = true
-		end
-    end
-    --print("size=" .. #t .. ", prob=" .. prob .. ", deepflag=" .. tostring(dflag))
-
-
-    local rt = remove_dups_tbl_fast(t, dflag)
- 	return unicode_tbl_to_utf8_fast(rt)
-end
-
-function estimate_dup_probability(tbl)
-	local prob = 0.0
-	if tbl == nil then
-		return prob
-	end
-
-	local uc = {}
-	for k, v in pairs(tbl) do
-		if uc[v] ~= nil then
-			uc[v] = uc[v] + 1
-		else
-			uc[v] = 1
-		end
-	end
-
-	local counter = 0
-	for k, v in pairs(uc) do
-		counter = counter + 1
-		-- print( unicode_tbl_to_utf8_fast({k}), "=", v)
-	end
-
-	--print(counter, #tbl, 1-counter/#tbl)
-	return math.floor((1-counter/#tbl)*100)/100
-end
-
--- utf8 to unicode table
-function utf8_to_tbl_fast(utf8str, start, stop)
-    assert(type(utf8str) == "string")
-
-    if start == nil then
-        start = 1
-    end    
-
-    if stop == nil then
-        stop = #utf8str
-    end
-
-    local res, seq, val = {}, 0, nil
-    for i = start, stop do
-        local c = string.byte(utf8str, i)
-        if seq == 0 then
-            table.insert(res, val)
-            seq = c < 0x80 and 1 or c < 0xE0 and 2 or c < 0xF0 and 3 or
-                  c < 0xF8 and 4 or --c < 0xFC and 5 or c < 0xFE and 6 or
-                  error("invalid UTF-8 character sequence")
-            val = bit.band(c, 2^(8-seq) - 1)
-        else
-            val = bit.bor(bit.lshift(val, 6), bit.band(c, 0x3F))
-        end
-        seq = seq - 1
-    end
-    table.insert(res, val)
-    return res
-end
-
--- unicode table to utf8
-function unicode_tbl_to_utf8_fast(tbl, start, stop)
-	if tbl == nil then
-		return nil
-	end
-
-    if start == nil then
-        start = 1
-    end    
-
-    if stop == nil then
-        stop = #tbl
-    end
-
-    local rets=""
-    for i = start, stop do
-        local unicode = tbl[i]
-
-        if unicode <= 0x007f then
-            rets=rets..string.char(bit.band(unicode,0x7f))
-        elseif unicode >= 0x0080 and unicode <= 0x07ff then
-            rets=rets..string.char(bit.bor(0xc0,bit.band(bit.rshift(unicode,6),0x1f)))
-            rets=rets..string.char(bit.bor(0x80,bit.band(unicode,0x3f)))
-        elseif unicode >= 0x0800 and unicode <= 0xffff then
-            rets=rets..string.char(bit.bor(0xe0,bit.band(bit.rshift(unicode,12),0x0f)))
-            rets=rets..string.char(bit.bor(0x80,bit.band(bit.rshift(unicode,6),0x3f)))
-            rets=rets..string.char(bit.bor(0x80,bit.band(unicode,0x3f)))
-        end
-    end
-    --rets=rets..'\0'
-    return rets
-end
-
--- if t[p1+i]==0xa0 or t[p1+i]==0x20 or t[p1+i]==0x3000
-function compare_tables_part_nospace_fast(t, p1, p2, size)
-	local ncounter = 0
-	local p1pos = 1
-	local p2pos = 1
-
-	local result = false
-
-	while(p1pos<=size) do
-		-- p1 not space
-		local c1 = t[p1+p1pos]
-		if c1~=0xa0 and c1~=0x20 and c1~=0x3000 then
-			local c2 = nil
-			local i
-
-			while(p2pos<=size) do
-				c2 = t[p2+p2pos]
-				if c2~=0xa0 and c2~=0x20 and c2~=0x3000 then
-					p2pos = p2pos + 1
-					break
-				end
-				p2pos = p2pos + 1
-			end
-
-			--print(c1, c2)
-
-			if c1 ~= c2 then 
-            	return false 
-            end
-
-        	 -- number
-	        if c1 >= 0x30 and c1 <= 0x39 then
-	        	ncounter = ncounter + 1
-	        end
-		end
-	    p1pos = p1pos + 1
-	end
-
-    -- ignore all number repeats
-    if ncounter == size then
-    	return false
-    end
-
-	for i=p2pos, size do
-		local extrac2 = t[p2+i]
-		--p2 has non-space chars
-		if extrac2~=0xa0 and extrac2~=0x20 and extrac2~=0x3000 then
-			return false
-		end
-	end
-
-	--print (size, p1pos, p2pos)
-	if p1pos  == size+1 then
-		result = true
-	end
-
-    return result
-end
-
-function remove_dups_tbl_fast(t, deep)
-	local i, k
-    -- offset, window_size
-    local off, w
-    -- length
-    local n = #t
-    -- half of length
-    local h = math.floor(n/2)
-
-    -- offset from 0 to n
-    for off=0, n do
-        local maxwin = h
-
-        -- calc max window size
-        if h>(n-off) then
-        	maxwin = n-off
-        end
-
-        -- window size from large to small
-        for w=maxwin, 3, -1 do
-	        local dups = 0
-            -- fist element index = 0
-            for k = 1, (n-off)/w-1 do
-	            --if compare_tables_part(t, dups*w+off, (dups+1)*w+off, w) then
-	            --print(unicode_tbl_to_utf8_fast(t, off+1, off+w) .. " vs " .. unicode_tbl_to_utf8_fast(t, k*w+off+1, k*w+off+w) )
-	            --if compare_tables_part_fast(t, off, k*w+off, w) then
-	            if compare_tables_part_nospace_fast(t, off, k*w+off, w) then
-	                dups = dups + 1
-	                --print("dups=", dups, "w=", w)
-	            else
-	            	break
-	            end
-            end
-
-            if(dups>0) then
-            	local rt = {}
-            	for i = 1, off+w do
-            		table.insert(rt, t[i])
-            	end
-
-				--print(unicode_tbl_to_utf8_fast(rt))
-
-            	for i = (dups+1)*w+off+1, n do
-            		table.insert(rt, t[i])
-            	end
-				--print(unicode_tbl_to_utf8_fast(rt))
-
-            	--ft = nil
-            	-- find dups again
-            	if deep then
-	            	ft = remove_dups_tbl_fast(rt, deep)
-	            	if ft ~= nil then
-	            		return ft
-	            	else
-	            		return rt
-	            	end
-            	else
-            		return rt
-            	end
-            end
-        end
-    end
-end
 
 -- get sorted keys
 function getKeysSortedByValue(tbl, sortFunction)
@@ -633,6 +314,9 @@ function TritonMessage:HookMessages()
 
     --addon:Printf("TritonMessage:HookMessages()")
     addon.frame:RegisterEvent("CHAT_MSG_CHANNEL");
+    addon.frame:RegisterEvent("CHAT_MSG_SAY");
+    addon.frame:RegisterEvent("CHAT_MSG_YELL");
+    addon.frame:RegisterEvent("CHAT_MSG_SYSTEM");
     self.hooked = true
 
     -- wipe topics 
@@ -641,6 +325,8 @@ function TritonMessage:HookMessages()
     else
         self.topics = {}
     end
+
+    self.whos = {}
 
     -- setup topic cleaner run interval
     self.lastTopicClean = GetTime();
@@ -694,6 +380,9 @@ function TritonMessage:UnhookMessages()
 
     --addon:Printf("TritonMessage:UnhookMessages()")
     addon.frame:UnregisterEvent("CHAT_MSG_CHANNEL");
+    addon.frame:UnregisterEvent("CHAT_MSG_SAY");
+    addon.frame:UnregisterEvent("CHAT_MSG_YELL");
+    addon.frame:UnregisterEvent("CHAT_MSG_SYSTEM");
 
     self.hooked = false
 
@@ -719,6 +408,34 @@ local function has_value (tab, v)
         end
     end
     return false
+end
+
+function TritonMessage:SystemMessage(message)
+    if (self.topics == nil or table_count(self.topics) == 0) then
+        return
+    end
+
+    local _, name, level, race, class, guild, location = LibDeformat(message, WHO_LIST_GUILD_FORMAT)
+    if not name then
+        _, name, level, race, class, location = LibDeformat(message, WHO_LIST_FORMAT)
+    end
+
+    if name and level then
+        level = tonumber(level) or nil
+
+        for key, t in pairs(self.topics) do
+            local topic = self.topics[key]
+            if (topic["nameonly"] == name) then
+                self.whos[name] = {
+                    name = name,
+                    level = level,
+                    location = location,
+                    time = GetTime()
+                }
+                break
+            end
+        end
+    end
 end
 
 --- Search message for searched terms
@@ -758,38 +475,38 @@ function TritonMessage:SearchMessage(msg, from, source, guid)
     end
 
     --local salted_msg = "<guid:" .. guid .. "><class:" .. engClass .. "><race:" .. engRace .. "><name:" .. name .. "><server:" .. getServer(from) .. ">" .. msg
-    local salted_msg = "<guid:" .. guid .. "><class:" .. locClass .. "><race:" .. locRace .. "><name:" .. name .. "><server:" .. getServer(from) .. ">" .. msg
+    --local salted_msg = "<guid:" .. guid .. "><class:" .. locClass .. "><race:" .. locRace .. "><name:" .. name .. "><server:" .. getServer(from) .. ">" .. msg
+    local salted_msg = "<class:" .. locClass .. ">" .. msg
     salted_msg = salted_msg:lower()
 
     -- addon:Printf("addon.db.global.filters = " .. addon.db.global.filters.include.line1)
     -- addon:Printf("TritonMessage:salted_msg " .. salted_msg)
 
     -- check if message pass or not
-    local pass, keyword = self:FilterTopics(msg, salted_msg, from, source, guid)
+    local pass, keyword, alias = self:FilterTopics(msg, salted_msg, from, source, guid)
 
     if pass then
-        -- merge dup substrings in msg
-        msg = RewriteMessage(msg)
-
-        --msg = source .. ":" .. msg
-
         -- build topics and do cleaner
-        self:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
+        self:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash, locClass, locRace, alias)
         -- Update topics once message received
         -- self:UpdateTopicsUI()
     end
 end
 
-function handlers.CHAT_MSG_CHANNEL(text, playerName, _, channelName, _, _, _, _, _, _, _, guid)
-    TritonMessage:SearchMessage(text, playerName, channelName, guid);
+function handlers.CHAT_MSG_CHANNEL(text, playerName, _, _, _, _, _, channelIndex, _, _, _, guid)
+    TritonMessage:SearchMessage(text, playerName, channelIndex, guid);
 end
 
 function handlers.CHAT_MSG_SAY(text, playerName,  _, _, _, _, _, _, _, _, _, guid)
-    TritonMessage:SearchMessage(text, playerName, L["TRITON"]);
+    TritonMessage:SearchMessage(text, playerName, "SAY", guid);
 end
 
 function handlers.CHAT_MSG_YELL(text, playerName,  _, _, _, _, _, _, _, _, _, guid)
-    TritonMessage:SearchMessage(text, playerName, L["TRITON"]);
+    TritonMessage:SearchMessage(text, playerName, "YELL", guid);
+end
+
+function handlers.CHAT_MSG_SYSTEM(text, _,  _, _, _, _, _, _, _, _, _, _)
+    TritonMessage:SystemMessage(text);
 end
 
 addon.frame:SetScript( "OnEvent", function(self, event, ...) 
@@ -824,7 +541,7 @@ function TritonMessage:FilterTopics(msg, salted_msg, from, source, guid)
                     end
                     lasttenseconds[nameNoDash] = t
     -- hk } ]]
-                    return true, search
+                    return true, search, data.alias
                 end
             end
         end
@@ -838,22 +555,44 @@ function TritonMessage:RemoveExpired()
     -- addon:Printf("Running cleaner ...");
 
     if self.topics == nil then
+        if table_count(self.whos) > 0 then
+            self.whos = {}
+        end
         return
     end
 
+    local namesLeft = {}
+
     for key, t in pairs(self.topics) do
-        if ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
+        if t["marked_for_removal"] == true then
+            self.topics[key] = nil
+        elseif ((GetTime() - t["time"]) > addon.db.global.max_topic_live_secs) then
             -- simply set the topic to nil to avoid memory leak
             --addon:Printf("Removed topic:" .. key);
             self.topics[key] = nil
+        else
+            namesLeft[t["nameonly"]] = true
+        end
+    end
+
+    if table_count(namesLeft) == 0 then
+        if table_count(self.whos) > 0 then
+            self.whos = {}
+        end
+    else
+        for key, t in pairs(self.whos) do
+            if namesLeft[key] == nil then
+                self.whos[key] = nil
+            end
         end
     end
 end
 
-function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash)
+function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass, keyword, nameNoDash, locClass, locRace, alias)
     -- addon:Printf("TritonMessage:BuildTopics keyword:[" .. tostring(keyword) .. "], salted_msg=" .. salted_msg)
 
-    local topic_idx = guid .. ":" .. keyword
+    -- local topic_idx = guid .. ":" .. source .. ":" .. keyword
+    local topic_idx = guid .. ":" .. source .. ":" .. msg
 
     -- find if the topic exists in topics table
     local foundtopic = self.topics[topic_idx]
@@ -866,10 +605,14 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         topic["time"] = GetTime()
         topic["first"] = false
         topic["msg"] = msg
+        topic["channel"] = source
         topic["from"] = from
         topic["nameonly"] = nameNoDash
+        topic["alias"] = alias
         topic["keyword"] = keyword
         topic["class"] = engClass
+        topic["locClass"] = locClass
+        topic["locRace"] = locRace
         topic["animated"] = false
         topic["guid"] = guid
         
@@ -884,10 +627,14 @@ function TritonMessage:BuildTopics(msg, salted_msg, from, source, guid, engClass
         topic["first"] = true
         topic["createtime"] = topic["time"]
         topic["msg"] = msg
+        topic["channel"] = source
         topic["from"] = from
         topic["nameonly"] = nameNoDash
+        topic["alias"] = alias
         topic["keyword"] = keyword
         topic["class"] = engClass
+        topic["locClass"] = locClass
+        topic["locRace"] = locRace
         topic["animated"] = false
         topic["guid"] = guid
 
@@ -912,7 +659,7 @@ function TritonMessage:UpdateTopicsUI()
     --print(table_to_string(self.topics))
     -- Only refresh when refresh every interval
     if GetTime() - self.lastRefresh > addon.db.global.refresh_interval then
-        addon.GUI:RefreshTopics(self.topics)
+        addon.GUI:RefreshTopics(self.topics, self.whos)
         self.lastRefresh = GetTime()
     end
 end
@@ -920,7 +667,15 @@ end
 function TritonMessage:UpdateTopicsUIFromTimer()
     --addon:Printf("Refresh topics by timer ...");
     self:RemoveExpired()
-    addon.GUI:RefreshTopics(self.topics)
+    addon.GUI:RefreshTopics(self.topics, self.whos)
     self.lastRefresh = GetTime()
 end
 
+function TritonMessage:RemoveTopic(key)
+    if self.topics[key] ~= nil then
+        self.topics[key]["marked_for_removal"] = true
+        self:RemoveExpired()
+        addon.GUI:RefreshTopics(self.topics, self.whos)
+        self.lastRefresh = GetTime()
+    end
+end

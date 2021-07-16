@@ -6,6 +6,8 @@ if not L then return end
 L["|cffffff00Click|r to toggle the triton main window."] = "|cffffff00Нажмите|r чтобы переключить главное окно triton."
 L["TRITON"] = "Triton";
 
+L["Only alias specified"] = "Указан только алиас"
+
 L["Add new keywords"] = "Добавление новых ключевых слов"
 L["Keywords (, & - may be used)"] = "Ключевые слова (, & - можно использовать символы)"
 L["Add"] = "Добавить"

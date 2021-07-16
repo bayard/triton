@@ -55,9 +55,16 @@ end);
 TritonKeywordUI.addFrame.okbutton:SetScript("OnClick", function (self)
     local sstring = TritonKeywordUI.addFrame.searchEdit:GetText();
     sstring = strtrim(sstring);
-    if string.len(sstring) == 0 then
+    local len = string.len(sstring);
+    if len == 0 then
         addon:PrintError(L["Keyword could not be empty"]);
-		return;
+        return;
+    end
+    
+    local aliasSeparatorPos = string.find(sstring, ":");
+    if (aliasSeparatorPos ~= nil and aliasSeparatorPos == len) then
+        addon:PrintError(L["Only alias specified"]);
+        return;
     end
 	addon:AddToList(sstring);
 	TritonKeywordUI:ShowContent("LIST");
@@ -77,9 +84,15 @@ end)
 
 TritonKeywordUI.editFrame.okbutton:SetScript("OnClick", function(self)
     local nstring = strtrim(TritonKeywordUI.editFrame.searchEdit:GetText())
-    if string.len(nstring) == 0 then
+    local len = string.len(nstring);
+    if len == 0 then
         addon:PrintError(L["Keyword could not be empty"]);
-		return;
+        return;
+    end
+    local aliasSeparatorPos = string.find(nstring, ":");
+    if (aliasSeparatorPos ~= nil and aliasSeparatorPos == len) then
+        addon:PrintError(L["Only alias specified"]);
+        return;
     end
      addon:RemoveFromList(TritonKeywordUI.editFrame.oldsearch)
      addon:AddToList(nstring); 

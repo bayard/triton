@@ -6,6 +6,8 @@ if not L then return end
 L["|cffffff00Click|r to toggle the triton main window."] = "|cffffff00点击|r显示Triton消息跟踪窗口"
 L["TRITON"] = "Triton";
 
+L["Only alias specified"] = "Only alias specified"
+
 L["Add new keywords"] = "添加新关键字"
 L["Keywords (, & - may be used)"] = "&-分别表示and和not，多关键字用逗号隔开"
 L["Add"] = "添加"
