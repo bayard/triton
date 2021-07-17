@@ -93,7 +93,7 @@ function addon:SwitchOn()
 			-- do nothing
 				return
 		end
-	end 
+	end
 
 	addon.GUI:Load_Ace_Custom()
 	addon.GUI.display:Show()
@@ -124,7 +124,7 @@ function addon:UIToggle()
 		else
 			addon:SwitchOn()
 		end
-	else 
+	else
 		addon:SwitchOn()
 	end
 
@@ -143,3 +143,6 @@ function addon:UpdateAddonState()
 end
 
 -- EOF
+function addon:PrintError(s)
+	print("Triton error: " .. s)
+end

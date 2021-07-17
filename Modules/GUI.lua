@@ -2,10 +2,12 @@ local addonName, addon = ...
 local GUI = addon:NewModule("GUI", "AceEvent-3.0", "AceHook-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local AceGUI = LibStub("AceGUI-3.0")
+local LibDeformat = LibStub("LibDeformat-3.0")
 local private = {}
 ------------------------------------------------------------------------------
 
 local fontName, fontHeight, fontFlags = DEFAULT_CHAT_FRAME:GetFont()
+local LEVEL_ABBR_LOWER = string.utf8lower(LEVEL_ABBR)
 
 
 -- printing debug info
@@ -41,27 +43,27 @@ function GUI:Load_Ace_Custom()
 	frame.sizer_s:SetSize(10,10)
 	frame.sizer_e:SetSize(10,10)
   	]]
-  	
+
   	-- When close button clicked
 	frame:SetCallback("OnClose",
-		function(widget) 
+		function(widget)
 			addon.TritonMessage:UnhookMessages()
-			AceGUI:Release(widget) 
+			AceGUI:Release(widget)
 		end)
-  
+
   	-- When settings button clicked
 	frame:SetCallback("OnSettingsClick",
-		function(widget) 
+		function(widget)
       		addon:KeywordUI_OpenList();
 		end)
-  
+
   	-- When power button clicked
   	frame:SetCallback("OnPowerClick",
-		function(widget) 
+		function(widget)
       		addon:ToggleAddon();
       		TritonKeywordUI:UpdateKeywordUIState();
 		end)
-  
+
 	frame:SetLayout("Fill")
 
 	GUI.display = frame
@@ -109,7 +111,7 @@ function GUI:UpdateAddonUIStatus(isactive)
 	if GUI.display == nil then
 		return
 	end
-	
+
 	GUI.display:OnPowerButtonStatus(isactive)
 	if isactive then
 		GUI.display.titletext:SetTextColor(1, 0.82, 0, 1);
@@ -127,7 +129,7 @@ function GUI:linktest_ace_html()
 	--msgLine:SetFont(fontName, addon.db.global.fontsize)
 	--msgLine:SetText("|cff9d9d9d|Hitem:7073::::::::::::|h[Broken Fang]|h|r")
 	msgLine:SetText("<html><body><h1>Heading1</h1><p>A paragraph</p></body></html>")
-	
+
 	--msgLine:SetCallback("OnClick", function() GameTooltip:SetHyperlink("item:16846:0:0:0:0:0:0:0"); end)
 	--msgLine:SetCallback("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
 
@@ -143,7 +145,7 @@ function GUI:linktest()
 	msgLine:SetFont(fontName, addon.db.global.fontsize)
 	msgLine:SetText("|cff9d9d9d|Hitem:7073::::::::::::|h[Broken Fang]|h|r")
 	--msgLine:SetText("<html><body><h1>Heading1</h1><p>A paragraph</p></body></html>")
-	
+
 	--msgLine:SetCallback("OnClick", function() GameTooltip:SetHyperlink("item:16846:0:0:0:0:0:0:0"); end)
 	--msgLine:SetCallback("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
 
@@ -204,7 +206,7 @@ function GUI:testmsg()
 		--self.scroll:DoLayout()
 	end
 
-	
+
 	--self.scroll:DoLayout()
 	]]
 
@@ -245,7 +247,7 @@ function GUI:CreateNewLineWidgetWithTritonEntry(topics)
 		-- setup events
 		-- msgLine:SetCallback("OnEnter", ShowLabelTooltip)
 		msgLine:SetCallback("OnClick", ClickLabel)
-		
+
 		msgLine.label:SetScript("OnHyperlinkEnter", ChatFrame_OnHyperlinkShow)
 		msgLine.label:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
 
@@ -320,7 +322,7 @@ function GUI:AdjustLines(topics)
 	self.scroll:DoLayout()
 end
 
-function GUI:RefreshTopicsSorted(topics, sort_field)
+function GUI:RefreshTopicsSorted(topics, whos, sort_field)
 	self:AdjustLines(topics)
 
 	local widgetIdx = 1
@@ -341,29 +343,84 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
         local ccolor = RAID_CLASS_COLORS[topics[key]["class"]].colorStr
         playerStr = "|c" .. ccolor .. topics[key]["nameonly"]
 
+		local msgColor = ""
+		local channel = ""
+        if ( topics[key]["channel"] == "SAY" ) then
+        	msgColor = "cffffffff"
+        elseif ( topics[key]["channel"] == "YELL" ) then
+			msgColor = "cffff3f40"
+    	else
+    		msgColor = "cff00cccc"
+    		channel = "|cfffec1c0 [" .. topics[key]["channel"] .. "]|r"
+        end
+
+		local name = ""
+        if ( topics[key]["alias"] ~= nil) then
+        	name = topics[key]["alias"]
+    	else
+    		name = topics[key]["keyword"]
+        end
+
+		local about = ""
+		local aboutLvl = nil
+		local aboutLocation = nil
+		if whos[topics[key]["nameonly"]] ~= nil then
+			local who = whos[topics[key]["nameonly"]]
+
+			if (who["level"] ~= nil) then
+				local level = who["level"] .. " " .. LEVEL_ABBR_LOWER
+				about = about .. " - " .. level
+				aboutLvl = level
+			end
+
+			if (who["location"] ~= nil) then
+				local location = who["location"]
+				about = about .. " - " .. location
+				aboutLocation = location
+			end
+
+			if string.len(about) > 0 then
+				local aboutAgo = curTime - who["time"]
+				aboutAgo = math.floor(aboutAgo)
+				local time = "|r |cff008800" .. tostring(aboutAgo) .. "s"
+				about = about .. time
+				if (string.len(aboutLocation) > 0) then
+					aboutLocation = aboutLocation .. time
+				end
+			end
+		end
         -- tostring(widgetIdx) .. " " ..
-		local dispMsg = "|cff00cc00" .. topics[key]["keyword"] .. 
-			" |cffca99ff[" ..playerStr .. 
-			"|cffca99ff] |cff00cccc" .. topics[key]["msg"] ..  
+		local dispMsg = "|cff00cc00" .. name ..
+			" |cffca99ff[" .. playerStr .. about .. "|cffca99ff]" ..
+			channel ..
+			" |" .. msgColor .. topics[key]["msg"] ..
 			" |cff008800" .. tostring(secs) .. "s";
 		--self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		self.lines[widgetIdx]["msgLine"]:SetText(dispMsg)
 		--self.lines[widgetIdx]["msgLine"]:Show()
 
+		local line = self.lines[widgetIdx]
+
+		-- save current top in widget line's container
+		line["topic"] = topics[key]
+		line["about_lvl"] = aboutLvl
+		line["about_location"] = aboutLocation
+		line["topic_key"] = key
+
 		-- if new update on old message
-		if( not topics[key]['animated'] ) then
+		if( not line["topic"]['animated'] ) then
 			-- create animation
 			--addon:Printf("do alpha animation")
-			f = self.lines[widgetIdx]["msgLine"].frame
-			flasher = f:CreateAnimationGroup() 
+			local flasher = line["msgLine"].frame:CreateAnimationGroup()
+			line.flasher = flasher
 
-			fade1 = flasher:CreateAnimation("Alpha")
+			local fade1 = flasher:CreateAnimation("Alpha")
 			fade1:SetDuration(0.21)
 			fade1:SetFromAlpha(1)
 			fade1:SetToAlpha(0.5)
 			fade1:SetOrder(1)
 
-			fade2 = flasher:CreateAnimation("Alpha")
+			local fade2 = flasher:CreateAnimation("Alpha")
 			fade2:SetDuration(0.39)
 			fade2:SetFromAlpha(0.5)
 			fade2:SetToAlpha(1)
@@ -371,11 +428,8 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 
 			flasher:Play()
 
-			topics[key]["animated"] = true
+			line["topic"]["animated"] = true
 		end
-
-		-- save current top in widget line's container
-		self.lines[widgetIdx]["topic"] = topics[key]
 
 		-- increase index to access next widget line
 		widgetIdx = widgetIdx + 1
@@ -385,11 +439,11 @@ function GUI:RefreshTopicsSorted(topics, sort_field)
 	self.scroll:DoLayout()
 end
 
-function GUI:RefreshTopics(topics)
+function GUI:RefreshTopics(topics, whos)
 	--self:RefreshTopicsNormal(topics)
 
 	-- Sorted by last update time`
-	GUI:RefreshTopicsSorted(topics, "time")
+	GUI:RefreshTopicsSorted(topics, whos, "time")
 
 	-- Sorted by first create time
 	--GUI:RefreshTopicsSorted(topics, "createtime")
@@ -424,6 +478,40 @@ function ShowLabelTooltip(from_widget)
 	end
 end
 
+function GUI:InviteText(from_widget)
+	for k, v in pairs(self.lines) do
+		if v["msgLine"] == from_widget then
+			ChatFrame_OpenChat("/invite " .. v["topic"].nameonly)
+			break
+		end
+	end
+end
+
+function GUI:UserDetails(from_widget)
+	for k, v in pairs(self.lines) do
+		if v["msgLine"] == from_widget then
+			self:GetUserDetails(v["topic"].nameonly)
+			break
+		end
+	end
+end
+
+function GUI:GetUserDetails(name)
+	DEFAULT_CHAT_FRAME.editBox:SetText("/who " .. name)
+	ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
+end
+
+function GUI:RemoveTopic(from_widget)
+	for k, v in pairs(self.lines) do
+		if v["msgLine"] == from_widget then
+			if v["topic"]["marked_for_removal"] == nil then
+				addon.TritonMessage:RemoveTopic(v["topic_key"])
+			end
+			break
+		end
+	end
+end
+
 function GUI:WhisperPlayer(from_widget)
 	for k, v in pairs(self.lines) do
 		if v["msgLine"] == from_widget then
@@ -434,16 +522,27 @@ function GUI:WhisperPlayer(from_widget)
 end
 
 function GUI:PlayerMenu(from_widget)
-	local topic = nil
+	local topic, topic_key, aboutLvl, aboutLocation = nil, nil, nil, nil
 	for k, v in pairs(self.lines) do
 		if v["msgLine"] == from_widget then
 			topic = v["topic"]
+			topic_key = v["topic_key"]
+			aboutLvl = v["about_lvl"]
+			aboutLocation = v["about_location"]
 			break
 		end
 	end
 
 	if topic == nil then
 		return
+	end
+
+	local function RemoveTopic(topic_key)
+		addon.TritonMessage:RemoveTopic(topic_key)
+	end
+
+	local function InviteToParty(fullname)
+		InviteUnit(fullname);
 	end
 
 	local function CopyUserName(fullname)
@@ -454,34 +553,58 @@ function GUI:PlayerMenu(from_widget)
         if (not hasText) then editBox:HighlightText() end
 	end
 
-	local function UserDetails(fullname)
-		C_FriendList.SendWho("n-"..fullname)
+	local keyword = ""
+	local keywordColor = ""
+	if topic["alias"] ~= nil then
+		keyword = topic["keyword"]
+		keywordColor = "|cffffff00"
+	else
+		keyword = L["no alias"]
+		keywordColor = "|cff889d9d"
 	end
 
-	local function UserSpamScore(fullname, guid)
-	    local tritonapi = _G["AcamarAPIHelper"]
-	    if tritonapi ~= nil then
-	        local spamscore = tritonapi:SpamScore(guid)
-	        addon:Printf(fullname .. L["'s spam score is "] .. spamscore)
-	    else
-	    	addon:Printf(L["Please install Acamar auto-learning spam filtering addon to obtain user's spam score."])
-	    end
+	local function addChunksToMenu(menu, text, chunkSize, keywordColor)
+		for i=1, string.utf8len(text), chunkSize do
+			table.insert(menu, {
+				text = keywordColor .. string.utf8sub(text, i, i+chunkSize - 1),
+				isTitle = true
+			})
+		end
 	end
+
+	local race_class = "|cff00cccc" .. topic["locClass"]
+	if (aboutLvl ~= nil) then
+		race_class = race_class .. ", " .. aboutLvl
+	end
+	race_class = race_class .. " (" .. string.utf8lower(topic["locRace"]) .. ")"
 
 	local menu = {
-	    { text = L["Choose operation: |cff00cccc"] .. topic["nameonly"] , isTitle = true},
-	    { text = L["Block user"], func = function() C_FriendList.AddIgnore(topic["from"]); print(topic["nameonly"] .. L[" had been ignored."]); end },
-	    { text = L["Add friend"], func = function() C_FriendList.AddFriend(topic["from"]); end },
-	    { text = L["Copy user name"], func = function() CopyUserName(topic["from"]); end },
-	    { text = L["User details"], func = function() UserDetails(topic["nameonly"]); end },
-	    { text = L["User spam score"], func = function() UserSpamScore(topic["from"], topic["guid"]); end },
-	    { text = L["Whisper"], func = function() ChatFrame_SendTell(topic["from"]); end },
-	    { text = L["|cffff9900Cancel"], func = function() return; end },
+		{ text = L["Choose operation: |cff00cccc"] .. topic["nameonly"], isTitle = true },
+		{ text = race_class, isTitle = true }
 	}
+
+	if (aboutLocation ~= nil) then
+		aboutLocation = "|cFFCFCFCF" .. aboutLocation
+		table.insert(menu, { text = aboutLocation, isTitle = true })
+	end
+
+	addChunksToMenu(menu, keyword, 25, keywordColor)
+
+	table.insert(menu, { text = L["Invite to party"], func = function() InviteToParty(topic["from"]); end })
+	table.insert(menu, { text = L["Whisper"], func = function() ChatFrame_SendTell(topic["from"]); end })
+	table.insert(menu, { text = L["User details"], func = function() self:GetUserDetails(topic["nameonly"]); end })
+	table.insert(menu, { text = L["Copy user name"], func = function() CopyUserName(topic["from"]); end })
+	table.insert(menu, { text = L["|cffff9900Hide line"], func = function() RemoveTopic(topic_key); end })
+	table.insert(menu, { text = "\n", isTitle = true })
+	table.insert(menu, { text = L["|cFFCFCFCFctrl + left click: invite to party"], isTitle = true })
+	table.insert(menu, { text = L["|cFFCFCFCFshift + left click: user details"], isTitle = true })
+	table.insert(menu, { text = L["|cFFCFCFCFalt + left click: hide line"], isTitle = true })
+	table.insert(menu, { text = L["|cffff9900Cancel"], func = function() return; end })
 	local menuFrame = CreateFrame("Frame", "TopicMenuFrame", from_widget.frame, "UIDropDownMenuTemplate")
 
-	-- Make the menu appear at the cursor: 
+	-- Make the menu appear at the cursor:
 	EasyMenu(menu, menuFrame, "cursor", 0 , 0, "MENU");
+
 	-- Or make the menu appear at the frame:
 	-- menuFrame:SetPoint("LEFT", from_widget.frame, "Center")
 	-- EasyMenu(menu, menuFrame, menuFrame, 0 , 0, "MENU");
@@ -494,7 +617,15 @@ function ClickLabel(from_widget)
 	buttonName = GetMouseButtonClicked();
 	--addon:Printf('ClickLabel:' .. buttonName)
 	if buttonName == "LeftButton" then
-		GUI:WhisperPlayer(from_widget)
+		if IsControlKeyDown() and not IsShiftKeyDown() and not IsAltKeyDown() then
+			GUI:InviteText(from_widget)
+		elseif IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
+			GUI:UserDetails(from_widget)
+		elseif IsAltKeyDown() and not IsControlKeyDown() and not IsShiftKeyDown() then
+			GUI:RemoveTopic(from_widget)
+		else
+			GUI:WhisperPlayer(from_widget)
+		end
 	else
 		if buttonName == "RightButton" then
 			--local dropdownFrame = UIDROPDOWNMENU_INIT_MENU
@@ -553,7 +684,7 @@ function GUI:AdjustLinesByRecreate(topics)
 
 		self.scroll:AddChild(self.lines[i]["msgLine"])
 	end
-	
+
 	self.scroll:DoLayout()
 end
 

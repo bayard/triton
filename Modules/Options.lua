@@ -27,7 +27,7 @@ Options.defaults = {
 function Options:Load()
 	--addon:Printf("On option load():")
 
-	--[[    
+	--[[
     -- Initialize keywords with db value or empty table if no value in db
     addon.db.global.keywords =  addon.db.global.keywords or {}
 
@@ -42,7 +42,7 @@ function Options:Load()
 
     -- Set font size
     addon.db.global.fontsize = addon.db.global.fontsize or 12.5
-    
+
     -- no need
     --addon.db.global.globalswitch =  addon.db.global.globalswitch or true
     ]]
@@ -126,7 +126,7 @@ function Options:Load()
 	if( addon.db.global.keywords == nil ) then
 		if( GetLocale() == "zhCN" ) then
 			addon.db.global.keywords = keywords_zhCN
-		else 
+		else
 			addon.db.global.keywords = keywords_enUS
 		end
 	end
@@ -149,8 +149,19 @@ function addon:AddToList(search)
         active = true,
         words = {}
     };
-    
-    for found in string.gmatch(search, "([^,]+)") do
+
+    local keywords = "";
+    local aliasEnd = string.find(search, ":");
+    if (aliasEnd ~= nil) then
+    	if (aliasEnd ~= 1) then
+			ntable.alias = search:sub(1, aliasEnd - 1)
+		end
+		keywords = search:sub(aliasEnd + 1)
+	else
+		keywords = search
+    end
+
+    for found in string.gmatch(keywords, "([^,]+)") do
         table.insert(ntable.words, strtrim(found):lower());
     end
 

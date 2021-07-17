@@ -133,7 +133,7 @@ addFrame.searchLabel:SetPoint("TOPLEFT", addFrame.title, "BOTTOMLEFT", 0, -16);
 addFrame.searchLabel:SetPoint("TOPRIGHT", addFrame.title, "BOTTOMRIGHT", 0, -16);
 addFrame.searchLabel:SetText(L["Keywords (, & - may be used)"]);
 addFrame.searchLabel:SetJustifyH("LEFT");
-addFrame.searchEdit = MakeEditBox(addFrame, 40, 27, false);
+addFrame.searchEdit = MakeEditBox(addFrame, 512, 27, false);
 addFrame.searchEdit:SetPoint("TOPLEFT", addFrame.searchLabel, "BOTTOMLEFT", 0, -4);
 addFrame.searchEdit:SetPoint("TOPRIGHT", addFrame.searchLabel, "BOTTOMRIGHT", 0, -4);
 addFrame.okbutton = CreateFrame("Button", nil, addFrame, "OptionsButtonTemplate");
@@ -264,10 +264,15 @@ end);
 -- Add frame buttons
 addFrame.okbutton:SetScript ("OnClick", function (self)
     local sstring = addFrame.searchEdit:GetText();
-    sstring = strtrim(sstring);
-    if string.len(sstring) == 0 then
+    local len = string.len(sstring);
+    if len == 0 then
         addon:PrintError(L["Keyword could not be empty"]);
-		return;
+        return;
+    end
+    local aliasSeparatorPos = string.find(sstring, ":");
+    if (aliasSeparatorPos ~= nil and aliasSeparatorPos == len) then
+        addon:PrintError(L["Only alias specified"]);
+        return;
     end
 	addon:AddToList(sstring);
 	ShowSubFrame("LIST");
