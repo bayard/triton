@@ -2,7 +2,7 @@
 ## Title: Triton
 ## Title-zhCN: Triton
 ## Author: Triton@匕首岭
-## Version: 1.31
+## Version: 1.57
 ## Notes: |cff00aaaa Triton organize messages into events. Easy to track events of LFG, gold raid or others you interested.|r
 ## Notes-zhCN: |cff00aaaa Triton-跟团助手。将杂乱的聊天消息组织成清晰明了的主题，便于跟团，关注活动等等，只跟踪你关注的信息。|r
 ## SavedVariables: TritonDB
